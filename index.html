@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>특새 현장판 (데모)</title>
+<style>
+  :root{
+    --ivory:#faf6ef; --cream:#f3ecdf; --ink:#2b2620; --sub:#6f6759;
+    --line:#e4dccb; --terra:#b5563a; --green:#2e7d4f; --amber:#a86b12;
+    --red:#a83232; --gray:#8a8375; --card:#ffffff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;background:var(--ivory);color:var(--ink);}
+  .phone{max-width:420px;margin:0 auto;min-height:100vh;background:var(--ivory);}
+  header{padding:20px 20px 12px;border-bottom:1px solid var(--line);background:var(--cream);}
+  header h1{font-family:Georgia,"Nanum Myeongjo",serif;font-size:21px;letter-spacing:-0.3px;}
+  header .sub{font-size:12.5px;color:var(--sub);margin-top:4px;}
+  .officialbar{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:13px;}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--green);}
+  .officialbar b{font-variant-numeric:tabular-nums;}
+  .tabs{display:flex;border-bottom:1px solid var(--line);background:var(--cream);}
+  .tabs button{flex:1;padding:12px;border:0;background:none;font-size:14px;color:var(--sub);border-bottom:2px solid transparent;cursor:pointer;}
+  .tabs button.on{color:var(--ink);border-bottom-color:var(--terra);font-weight:600;}
+  main{padding:16px 16px 32px;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:10px;}
+  .row{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+  .place{font-size:16px;font-weight:600;}
+  .note{font-size:13px;color:var(--sub);margin-top:6px;line-height:1.5;}
+  .meta{font-size:11.5px;color:var(--gray);margin-top:8px;display:flex;gap:8px;align-items:center;}
+  .badge{font-size:12.5px;font-weight:600;padding:4px 10px;border-radius:999px;white-space:nowrap;}
+  .b-open{background:#e7f2ea;color:var(--green);}
+  .b-reco{background:#fdeee8;color:var(--terra);border:1px solid #f0cfc2;}
+  .b-busy{background:#fbf1de;color:var(--amber);}
+  .b-full{background:#f9e6e6;color:var(--red);}
+  .b-prep{background:#eeece6;color:var(--gray);}
+  .b-check{background:#eeece6;color:var(--gray);border:1px dashed #c9c1af;}
+  .online{border-left:4px solid var(--terra);}
+  .online a{display:inline-block;margin-top:10px;background:var(--terra);color:#fff;text-decoration:none;font-size:14px;font-weight:600;padding:10px 16px;border-radius:8px;}
+  h2.sec{font-family:Georgia,serif;font-size:15px;margin:20px 4px 10px;color:var(--ink);}
+  ul.info{list-style:none;}
+  ul.info li{font-size:13.5px;padding:9px 2px;border-bottom:1px solid var(--line);color:#3d372f;display:flex;gap:8px;}
+  ul.info li:last-child{border:0}
+  ul.info .k{color:var(--sub);min-width:86px;}
+  footer{padding:14px 20px 28px;font-size:11.5px;color:var(--gray);line-height:1.6;border-top:1px solid var(--line);margin-top:8px;}
+  /* operator */
+  .opcard .btns{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
+  .opcard .btns button{font-size:12.5px;padding:7px 11px;border-radius:8px;border:1px solid var(--line);background:#fff;cursor:pointer;}
+  .opcard .btns button.sel{background:var(--ink);color:#fff;border-color:var(--ink);}
+  .log{font-size:12px;color:var(--sub);line-height:1.7;}
+  .log b{color:var(--ink);font-weight:600;}
+  .demo{position:fixed;bottom:0;left:0;right:0;text-align:center;font-size:11px;color:#fff;background:rgba(43,38,32,.85);padding:5px;}
+</style>
+</head>
+<body>
+<div class="phone">
+  <header>
+    <h1>특새 현장판</h1>
+    <div class="sub">2026 특별새벽부흥회 · 분당우리교회 공식</div>
+    <div class="officialbar"><span class="dot"></span><b id="clock">03:47</b>&nbsp;공식 확인 · 담당자 갱신</div>
+  </header>
+  <div class="tabs">
+    <button id="tabS" class="on" onclick="show('s')">성도 화면</button>
+    <button id="tabO" onclick="show('o')">운영자 화면</button>
+  </div>
+
+  <main id="viewS">
+    <div id="places"></div>
+
+    <div class="card online">
+      <div class="row"><div class="place">온라인 예배</div><span class="badge b-open">지금 참여 가능</span></div>
+      <div class="note">현장과 동일한 예배 실황. 병원·돌봄·해외에서도 같은 자리입니다.</div>
+      <a href="#">온라인 예배 바로가기</a>
+    </div>
+
+    <h2 class="sec">이동 · 안전 정보</h2>
+    <div class="card">
+      <ul class="info">
+        <li><span class="k">문 개방</span><span>정문 03:40 개방 완료 · 후문 04:00 예정</span></li>
+        <li><span class="k">주차 · 출차</span><span>송림 주차 혼잡, 평일 6:45까지 출차 필요</span></li>
+        <li><span class="k">아이 동반</span><span>드림센터 권장 · 자모실 운영 중</span></li>
+        <li><span class="k">배려 동선</span><span>장애인·고령자: 체육관 1층 진입 경사로</span></li>
+        <li><span class="k">중간 출차</span><span>출근 출차는 체육관 주차가 유리</span></li>
+      </ul>
+    </div>
+
+    <footer>
+      마지막 갱신 <span id="lastS">03:47</span> · 장소별 담당자 확인 후 게시됩니다.<br>
+      10분 이상 갱신이 없으면 자동으로 "확인 중"으로 전환됩니다.
+    </footer>
+  </main>
+
+  <main id="viewO" style="display:none">
+    <div id="ops"></div>
+    <h2 class="sec">변경 기록</h2>
+    <div class="card log" id="log"></div>
+    <footer>모든 변경은 시각·담당자와 함께 기록됩니다. 1회 갱신 목표 30초 이내.</footer>
+  </main>
+</div>
+<div class="demo">데모 화면입니다 · 실제 데이터가 아닙니다</div>
+
+<script>
+const STATES = {
+  prep:  ["준비 중","b-prep"],
+  open:  ["입장 가능","b-open"],
+  reco:  ["지금 권장","b-reco"],
+  busy:  ["혼잡","b-busy"],
+  full:  ["입장 마감","b-full"],
+  check: ["확인 중","b-check"],
+};
+let data = [
+  {id:"songrim", name:"송림 본당", state:"full", note:"입장이 마감되었습니다. 드림센터·체육관도 같은 예배입니다.", by:"김집사", t:"03:41"},
+  {id:"dream",   name:"드림센터", state:"reco", note:"지금 오시면 여유 있습니다 · 아이 동반 적합", by:"박권사", t:"03:45"},
+  {id:"gym",     name:"체육관",   state:"open", note:"1층 경사로 진입 · 중간 출차에 유리", by:"이집사", t:"03:47"},
+];
+let logs = [
+  "03:47 <b>체육관</b> → 입장 가능 (이집사)",
+  "03:45 <b>드림센터</b> → 지금 권장 (박권사)",
+  "03:41 <b>송림 본당</b> → 입장 마감 (김집사)",
+  "03:20 <b>송림 본당</b> → 혼잡 (김집사)",
+];
+function render(){
+  document.getElementById("places").innerHTML = data.map(p=>{
+    const [label,cls] = STATES[p.state];
+    return `<div class="card"><div class="row"><div class="place">${p.name}</div><span class="badge ${cls}">${label}</span></div><div class="note">${p.note}</div><div class="meta">갱신 ${p.t} · 담당 ${p.by} 확인</div></div>`;
+  }).join("");
+  document.getElementById("ops").innerHTML = data.map(p=>{
+    const btns = Object.entries(STATES).map(([k,[label]])=>`<button class="${p.state===k?'sel':''}" onclick="setState('${p.id}','${k}')">${label}</button>`).join("");
+    return `<div class="card opcard"><div class="row"><div class="place">${p.name}</div><span class="badge ${STATES[p.state][1]}">${STATES[p.state][0]}</span></div><div class="btns">${btns}</div><div class="meta">마지막 변경 ${p.t} · ${p.by}</div></div>`;
+  }).join("");
+  document.getElementById("log").innerHTML = logs.map(l=>"<div>"+l+"</div>").join("");
+}
+function setState(id, k){
+  const p = data.find(x=>x.id===id);
+  p.state = k;
+  const now = new Date(); const t = "0"+ (3+Math.floor(now.getMinutes()/60)) + ":" + String(now.getSeconds()).padStart(2,"0");
+  p.t = t; p.by = "운영자(데모)";
+  logs.unshift(t + " <b>" + p.name + "</b> → " + STATES[k][0] + " (운영자 데모)");
+  document.getElementById("lastS").textContent = t;
+  render();
+}
+function show(which){
+  document.getElementById("viewS").style.display = which==="s"?"":"none";
+  document.getElementById("viewO").style.display = which==="o"?"":"none";
+  document.getElementById("tabS").classList.toggle("on", which==="s");
+  document.getElementById("tabO").classList.toggle("on", which==="o");
+}
+render();
+</script>
+</body>
+</html>
