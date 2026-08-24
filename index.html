@@ -60,12 +60,12 @@ main{padding-top:34px;padding-bottom:48px}.view{display:none}.view.active{displa
       <button data-view="week" onclick="showView('week')">주간</button>
       <button data-view="operator" onclick="showView('operator')">운영</button>
     </nav>
-    <div class="live-pill"><span class="live-dot"></span> 공식 현장 정보</div>
+    <div class="live-pill"><span class="live-dot"></span> 교회 공식 안내</div>
   </div>
 </header>
 <div class="demo-bar">
   <div class="shell demo-inner">
-    <div class="demo-copy">데모 시간대를 바꿔 전체 흐름을 확인하세요</div>
+    <div class="demo-copy">시간대를 눌러 예배 전·후 화면을 확인해 보세요</div>
     <div class="phase-switch">
       <button data-phase="before" class="active" onclick="setPhase('before')">예배 전 04:17</button>
       <button data-phase="after" onclick="setPhase('after')">예배 후 06:12</button>
@@ -79,65 +79,65 @@ main{padding-top:34px;padding-bottom:48px}.view{display:none}.view.active{displa
       <div class="hero">
         <div class="hero-copy">
           <div class="eyebrow">2026 특새 · 목요일 · 4일차</div>
-          <h2 class="display">오늘 예배의 자리를<br>안전하게 찾으세요.</h2>
-          <p class="lead">정확한 좌석 수보다, 현장 담당자가 방금 확인한 상태를 알려드립니다.</p>
+          <h2 class="display">오늘 예배드릴 곳을<br>확인하세요.</h2>
+          <p class="lead">좌석 수는 따로 표시하지 않습니다. 각 장소 담당자가 확인한 현재 상황을 알려드립니다.</p>
         </div>
         <aside class="attend-card">
-          <div><div class="label">오늘의 참석</div><h2 id="attend-title">특새에 함께하시나요?</h2><p id="attend-copy">현장 또는 온라인 참석을 남기면 주간 여정에 기록됩니다.</p></div>
-          <div class="attend-actions"><button id="attend-btn" class="primary-light" onclick="toggleAttendance()">오늘 참석했어요</button><button id="tomorrow-btn" class="secondary-light" onclick="toggleTomorrow()">내일도 참석할게요</button></div>
+          <div><div class="label">오늘 참석</div><h2 id="attend-title">오늘 특새에 오셨나요?</h2><p id="attend-copy">오늘 왔는지, 내일 올 예정인지 알려주시면 자리 준비에 도움이 됩니다.</p></div>
+          <div class="attend-actions"><button id="attend-btn" class="primary-light" onclick="toggleAttendance()">오늘 왔어요</button><button id="tomorrow-btn" class="secondary-light" onclick="toggleTomorrow()">내일도 올게요</button></div>
         </aside>
       </div>
 
-      <div class="section-head"><div><div class="eyebrow">TOGETHER NOW</div><h2>오늘 함께하는 사람들</h2></div><p>실제 체크인 기준 · 데모 수치</p></div>
-      <div class="attendance-pulse"><article class="pulse-main"><div class="pulse-label"><span class="pulse-live"></span>지금 함께 예배 중</div><div class="pulse-num" id="live-total">2,659명</div><div class="pulse-copy">현장과 온라인 체크인을 합친 수치입니다</div></article><article class="pulse-stat"><div class="pulse-label">현장 체크인</div><div class="pulse-num" id="onsite-total">2,041</div><div class="pulse-copy">세 공간에서 확인</div></article><article class="pulse-stat"><div class="pulse-label">내일 참석 예정</div><div class="pulse-num" id="tomorrow-total">1,384</div><div class="pulse-copy">지금까지 남긴 약속</div></article></div>
+      <div class="section-head"><div><div class="eyebrow">참석 현황</div><h2>오늘 몇 명이 함께하고 있나요?</h2></div><p>성도들이 누른 참석 버튼 기준 · 현재 숫자는 예시입니다</p></div>
+      <div class="attendance-pulse"><article class="pulse-main"><div class="pulse-label"><span class="pulse-live"></span>오늘 참석</div><div class="pulse-num" id="live-total">2,659명</div><div class="pulse-copy">현장과 온라인을 합한 숫자입니다</div></article><article class="pulse-stat"><div class="pulse-label">현장 참석</div><div class="pulse-num" id="onsite-total">2,041</div><div class="pulse-copy">송림·드림센터·체육관 합계</div></article><article class="pulse-stat"><div class="pulse-label">내일 참석 예정</div><div class="pulse-num" id="tomorrow-total">1,384</div><div class="pulse-copy">내일 온다고 알려주신 분</div></article></div>
 
-      <div class="section-head"><div><div class="eyebrow">LIVE BOARD</div><h2>지금 공간 상황</h2></div><p>04:17 기준 · 담당자 확인</p></div>
+      <div class="section-head"><div><div class="eyebrow">장소 안내</div><h2>지금 어디로 가면 될까요?</h2></div><p>04:17 기준 · 각 장소 담당자 확인</p></div>
       <div id="venue-grid" class="venue-grid"></div>
 
-      <div class="section-head"><div><div class="eyebrow">TODAY'S LOG</div><h2>지금 특새의 순간</h2></div><p>같은 새벽, 서로 다른 자리</p></div>
-      <section class="moment-wrap"><div class="moment-head"><div><h3>오늘의 현장 로그</h3><p>짧게 남긴 순간은 하루가 끝나면 하나의 특새 기록이 됩니다</p></div><button class="camera-btn" onclick="toggleShare()">2초 순간 남기기</button></div><div class="moments"><article class="moment scene1"><span class="moment-tag">공식</span><div class="moment-info"><div class="moment-time">03:52</div><div class="moment-place">송림 본당 앞 · 문이 열리는 순간</div></div></article><article class="moment scene2"><span class="moment-tag">현장</span><div class="moment-info"><div class="moment-time">04:07</div><div class="moment-place">드림센터 · 안내팀의 아침</div></div></article><article class="moment scene3"><span class="moment-tag">현장</span><div class="moment-info"><div class="moment-time">04:14</div><div class="moment-place">체육관 · 함께 자리를 준비해요</div></div></article><article class="moment scene4"><span class="moment-tag">지금</span><div class="moment-info"><div class="moment-time">04:18</div><div class="moment-place">온라인 · 서로 다른 곳, 같은 예배</div></div></article></div><div id="share-panel" class="share-panel"><p><strong>꾸미지 않은 지금의 순간을 2초만.</strong><br>얼굴, 차량번호, 아이 이름이 보이지 않게 촬영해주세요. 운영팀 확인 후 오늘의 로그에 게시됩니다.</p><label class="consent"><input id="share-consent" type="checkbox"><span>사진·영상 속 모든 사람이 촬영과 교회 내 공유에 동의했음을 확인합니다.</span></label><label class="file-label">카메라 또는 앨범 열기<input id="moment-file" type="file" accept="image/*,video/*" capture="environment" onchange="previewMoment(this)"></label><div id="uploaded-preview" class="uploaded-preview"></div></div></section>
+      <div class="section-head"><div><div class="eyebrow">오늘 특새</div><h2>지금 이곳의 모습</h2></div><p>성도들이 나눈 짧은 현장 영상</p></div>
+      <section class="moment-wrap"><div class="moment-head"><div><h3>오늘 특새 영상</h3><p>성도들이 올린 2초 영상을 모아 예배 후 한 편의 영상으로 만듭니다</p></div><button class="camera-btn" onclick="toggleShare()">2초 영상 올리기</button></div><div class="moments"><article class="moment scene1"><span class="moment-tag">공식</span><div class="moment-info"><div class="moment-time">03:52</div><div class="moment-place">송림 본당 앞 · 문 열렸어요</div></div></article><article class="moment scene2"><span class="moment-tag">현장</span><div class="moment-info"><div class="moment-time">04:07</div><div class="moment-place">드림센터 · 안내팀 준비 중</div></div></article><article class="moment scene3"><span class="moment-tag">현장</span><div class="moment-info"><div class="moment-time">04:14</div><div class="moment-place">체육관 · 예배 준비 중</div></div></article><article class="moment scene4"><span class="moment-tag">지금</span><div class="moment-info"><div class="moment-time">04:18</div><div class="moment-place">온라인 · 각자의 자리에서 함께해요</div></div></article></div><div id="share-panel" class="share-panel"><p><strong>지금 모습을 2초만 찍어주세요.</strong><br>얼굴, 차량번호, 아이 이름이 보이지 않게 찍어주세요. 운영팀이 확인한 뒤 오늘 특새 영상에 들어갑니다.</p><label class="consent"><input id="share-consent" type="checkbox"><span>영상에 나온 분들 모두 촬영과 교회 안에서 공유하는 데 동의했습니다.</span></label><label class="file-label">촬영하거나 영상 고르기<input id="moment-file" type="file" accept="image/*,video/*" capture="environment" onchange="previewMoment(this)"></label><div id="uploaded-preview" class="uploaded-preview"></div></div></section>
 
-      <div class="section-head"><h2>이동 전에 확인하세요</h2><p>필요한 정보만 짧게</p></div>
+      <div class="section-head"><h2>출발하기 전에 확인하세요</h2><p>꼭 필요한 안내만 모았습니다</p></div>
       <div class="notice-grid">
-        <article class="notice"><h3>이동 · 안전 안내</h3><ul><li><b>문 개방</b><span>정문·후문 모두 개방 완료</span></li><li><b>주차</b><span>송림 주차 혼잡, 드림센터 권장</span></li><li><b>아이 동반</b><span>드림센터 자모실 운영 중</span></li><li><b>중간 출차</b><span>체육관 주차가 가장 원활</span></li></ul></article>
-        <article class="notice online"><h3>온라인도 같은 예배의 자리입니다</h3><p class="desc">입원, 간병, 돌봄, 해외 체류 중이라면 실황으로 함께하세요. 참석 기록도 동일하게 남길 수 있습니다.</p><button class="text-link" onclick="chooseVenue('online')">온라인 예배 선택하기 →</button></article>
+        <article class="notice"><h3>이동 · 안전 안내</h3><ul><li><b>문 개방</b><span>정문·후문 모두 개방 완료</span></li><li><b>주차</b><span>송림 주차장이 붐빕니다. 드림센터 주차장을 이용해 주세요</span></li><li><b>아이 동반</b><span>드림센터 자모실 운영 중</span></li><li><b>중간 출차</b><span>예배 중 출차는 체육관 주차장을 이용해 주세요</span></li></ul></article>
+        <article class="notice online"><h3>온라인으로도 함께 예배드릴 수 있습니다</h3><p class="desc">입원, 간병, 돌봄, 해외 체류 중이라면 온라인으로 함께하세요. 온라인 참석도 똑같이 표시할 수 있습니다.</p><button class="text-link" onclick="chooseVenue('online')">온라인으로 참석할게요 →</button></article>
       </div>
     </div>
 
     <div id="after-content" style="display:none">
       <div class="post-hero">
         <div><div class="eyebrow">오늘 붙든 말씀</div><blockquote>“너희 안에서 착한 일을 시작하신 이가 이루실 줄을 우리는 확신하노라.”</blockquote><div class="verse">빌립보서 1:6 · 4일차 말씀</div></div>
-        <div class="post-note"><div class="pulse-label" style="color:rgba(255,255,255,.58)">오늘 함께한 사람</div><div class="pulse-num">4,127명</div><p>현장 3,219명 · 온라인 908명<br><br>특새는 예배당에서 끝나지 않습니다. 오늘 받은 말씀을 삶의 작은 한 걸음으로 옮겨보세요.</p></div>
+        <div class="post-note"><div class="pulse-label" style="color:rgba(255,255,255,.58)">오늘 참석 인원</div><div class="pulse-num">4,127명</div><p>현장 3,219명 · 온라인 908명<br><br>오늘 받은 말씀을 하루 한 가지 실천으로 이어가 보세요.</p></div>
       </div>
-      <div class="section-head"><div><div class="eyebrow">SPECIAL TO DAILY</div><h2>특새를 일새로</h2></div><p>하나만 골라도 충분합니다</p></div>
+      <div class="section-head"><div><div class="eyebrow">오늘의 실천</div><h2>특새를 일새로</h2></div><p>오늘 할 일 하나만 골라보세요</p></div>
       <div id="action-grid" class="action-grid">
-        <button class="action" onclick="selectAction(this,'점심 전 5분, 오늘 말씀을 다시 읽기')"><span class="num">01 · 말씀</span><strong>5분 다시 읽기</strong><span>점심 전 빌립보서 1장을 천천히 읽습니다.</span></button>
-        <button class="action" onclick="selectAction(this,'오늘 한 사람에게 먼저 안부 묻기')"><span class="num">02 · 관계</span><strong>먼저 안부 묻기</strong><span>마음에 떠오른 한 사람에게 짧게 연락합니다.</span></button>
-        <button class="action" onclick="selectAction(this,'잠들기 전 감사 세 가지 적기')"><span class="num">03 · 감사</span><strong>감사 세 가지</strong><span>잠들기 전 오늘의 감사를 세 줄로 남깁니다.</span></button>
+        <button class="action" onclick="selectAction(this,'점심 전에 빌립보서 1장 다시 읽기')"><span class="num">01 · 말씀</span><strong>5분 다시 읽기</strong><span>점심 전에 빌립보서 1장을 다시 읽습니다.</span></button>
+        <button class="action" onclick="selectAction(this,'떠오르는 한 사람에게 안부 보내기')"><span class="num">02 · 관계</span><strong>안부 보내기</strong><span>지금 떠오르는 한 사람에게 연락합니다.</span></button>
+        <button class="action" onclick="selectAction(this,'잠들기 전 감사한 일 세 가지 적기')"><span class="num">03 · 감사</span><strong>감사 세 가지</strong><span>잠들기 전에 감사한 일 세 가지를 적습니다.</span></button>
       </div>
-      <div class="commit-box"><input id="commit-input" aria-label="오늘의 일새 실천" placeholder="나만의 작은 실천을 직접 적어도 좋아요"><button class="solid" onclick="saveCommit()">오늘의 일새로 정하기</button></div>
+      <div class="commit-box"><input id="commit-input" aria-label="오늘 할 일" placeholder="직접 적어도 됩니다"><button class="solid" onclick="saveCommit()">이걸 오늘 실천할게요</button></div>
       <div id="commit-saved" class="saved"></div>
-      <div class="section-head"><h2>예배 기록</h2><p>계정 없이 이 기기에만 저장</p></div>
-      <div class="journal"><div class="card"><label for="word-note">오늘 마음에 남은 한 문장</label><textarea id="word-note" placeholder="말씀이나 기도 중 마음에 남은 것을 적어보세요"></textarea><div class="hint">입력 내용은 자동 저장됩니다.</div></div><div class="card"><label for="prayer-note">오늘의 짧은 기도</label><textarea id="prayer-note" placeholder="하나님께 드릴 한 문장의 기도"></textarea><div class="hint">공개되지 않는 개인 기록입니다.</div></div></div>
+      <div class="section-head"><h2>예배 기록</h2><p>이 기기에만 저장됩니다</p></div>
+      <div class="journal"><div class="card"><label for="word-note">오늘 마음에 남은 한 문장</label><textarea id="word-note" placeholder="말씀이나 기도 중 마음에 남은 내용을 적어보세요"></textarea><div class="hint">적은 내용은 자동으로 저장됩니다.</div></div><div class="card"><label for="prayer-note">오늘의 짧은 기도</label><textarea id="prayer-note" placeholder="한 문장으로 기도를 적어보세요"></textarea><div class="hint">다른 사람에게 공개되지 않습니다.</div></div></div>
     </div>
   </section>
 
   <section id="view-daily" class="view">
-    <div class="page-intro"><div><div class="eyebrow">DAILY AWAKENING</div><h2>특새에서 일새로</h2></div><p>새벽에 받은 말씀을 오늘의 작고 구체적인 행동으로 이어갑니다. 완벽함보다 한 걸음이 중요합니다.</p></div>
-    <div class="today-action"><div><small>목요일 · 오늘의 일새</small><h3 id="daily-action-title">아직 오늘의 실천을 정하지 않았어요</h3><p id="daily-action-copy">예배 후 화면에서 하나를 고르면 이곳에 이어집니다.</p></div><button id="daily-check" class="check-action" onclick="toggleDaily()">실천 완료</button></div>
-    <div class="section-head"><h2>이번 주 작은 걸음</h2><p>특새가 끝난 뒤에도 하루씩</p></div>
+    <div class="page-intro"><div><div class="eyebrow">오늘의 일새</div><h2>특새에서 일새로</h2></div><p>새벽에 들은 말씀 가운데 오늘 실천할 한 가지를 정해보세요.</p></div>
+    <div class="today-action"><div><small>목요일 · 오늘의 일새</small><h3 id="daily-action-title">오늘 할 일을 아직 고르지 않았어요</h3><p id="daily-action-copy">예배 후 화면에서 오늘 할 일을 골라주세요.</p></div><button id="daily-check" class="check-action" onclick="toggleDaily()">했어요</button></div>
+    <div class="section-head"><h2>이번 주 일새</h2><p>하루에 한 가지씩 실천해 보세요</p></div>
     <div id="days-strip" class="days-strip"></div>
-    <div class="section-head"><h2>오늘 다시 붙들기</h2><p>오래 머물 필요 없어요</p></div>
-    <div class="notice-grid"><article class="notice"><h3>오늘의 말씀</h3><p>“착한 일을 시작하신 이가 그리스도 예수의 날까지 이루실 줄을 우리는 확신하노라.”</p><button class="text-link" onclick="notify('말씀 전체 보기 데모입니다')">빌립보서 1장 읽기 →</button></article><article class="notice"><h3>저녁 돌아보기</h3><p>오늘 하나님이 이미 시작하고 계신 작은 변화를 하나 떠올려보세요.</p><button class="text-link" onclick="notify('저녁 9시 돌아보기 알림을 설정했습니다')">오늘만 알림 받기 →</button></article></div>
+    <div class="section-head"><h2>오늘 말씀 다시 보기</h2><p>짧게 읽고 하루를 시작하세요</p></div>
+    <div class="notice-grid"><article class="notice"><h3>오늘의 말씀</h3><p>“착한 일을 시작하신 이가 그리스도 예수의 날까지 이루실 줄을 우리는 확신하노라.”</p><button class="text-link" onclick="notify('말씀 전체 보기 화면은 아직 준비 중입니다')">빌립보서 1장 읽기 →</button></article><article class="notice"><h3>저녁 돌아보기</h3><p>오늘 하나님이 하신 일을 하나 떠올려보세요.</p><button class="text-link" onclick="notify('오늘 저녁 9시에 알려드릴게요')">오늘만 알림 받기 →</button></article></div>
   </section>
 
   <section id="view-week" class="view">
-    <div class="page-intro"><div><div class="eyebrow">MY WEEK</div><h2>나의 특새 주간</h2></div><p>출석 경쟁이 아니라, 이번 주 하나님 앞에 머문 나의 리듬을 조용히 돌아봅니다.</p></div>
-    <div class="week-layout"><div class="week-card" id="week-rows"></div><aside class="summary"><div class="eyebrow">THIS WEEK</div><div class="big" id="summary-count">3/6</div><p>특새 예배에 함께한 날</p><hr><ul><li id="summary-daily">일새 실천 2일 완료</li><li>개인 기록은 이 기기에만 저장</li><li>주간 기록은 다른 사람과 비교하지 않음</li></ul></aside></div>
+    <div class="page-intro"><div><div class="eyebrow">이번 주</div><h2>이번 주 특새 기록</h2></div><p>다른 사람과 비교하지 않고, 내가 예배드리고 실천한 날만 모아봅니다.</p></div>
+    <div class="week-layout"><div class="week-card" id="week-rows"></div><aside class="summary"><div class="eyebrow">이번 주</div><div class="big" id="summary-count">3/6</div><p>예배드린 날</p><hr><ul><li id="summary-daily">일새를 실천한 날 2일</li><li>개인 기록은 이 기기에만 저장</li><li>다른 사람에게 공개되지 않음</li></ul></aside></div>
   </section>
 
   <section id="view-operator" class="view">
-    <div class="page-intro"><div><div class="eyebrow">OPERATOR DEMO</div><h2>운영자 현장판</h2></div><p>장소 담당자가 한 번의 버튼으로 상태를 바꾸고, 모든 변경을 시간과 함께 남깁니다.</p></div>
+    <div class="page-intro"><div><div class="eyebrow">운영 화면</div><h2>운영자 현장판</h2></div><p>각 장소 담당자가 현재 상태를 누르면 변경 시간과 담당자가 자동으로 기록됩니다.</p></div>
     <div class="operator-wrap"><div class="op-list" id="op-list"></div><div class="op-log"><h3>변경 기록</h3><div id="op-logs"></div></div></div>
   </section>
 </main>
@@ -155,32 +155,32 @@ const STORAGE_KEY='teuksae-demo-v2';
 const initial={attendedDays:[0,1,2],attendanceToday:false,tomorrowPlan:false,selectedVenue:'',commit:'',dailyDone:[0,1],notes:{word:'',prayer:''}};
 let app=load();
 let phase='before';
-const STATES={open:['입장 가능','open'],reco:['지금 권장','reco'],busy:['혼잡','busy'],full:['입장 마감','full']};
+const STATES={open:['입장 가능','open'],reco:['여유 있음','reco'],busy:['혼잡','busy'],full:['입장 마감','full']};
 let venues=[
- {id:'songrim',name:'송림 본당',state:'full',desc:'입장이 마감되었습니다. 다른 공간도 같은 예배입니다.',by:'김집사',time:'04:11'},
- {id:'dream',name:'드림센터',state:'reco',desc:'지금 오시면 여유 있습니다. 아이 동반에 적합합니다.',by:'박권사',time:'04:15'},
- {id:'gym',name:'체육관',state:'open',desc:'1층 경사로 진입. 중간 출차에 가장 유리합니다.',by:'이집사',time:'04:17'}
+ {id:'songrim',name:'송림 본당',state:'full',desc:'송림 본당 입장은 끝났습니다. 드림센터나 체육관으로 와 주세요.',by:'김집사',time:'04:11'},
+ {id:'dream',name:'드림센터',state:'reco',desc:'지금은 자리가 여유롭습니다. 아이와 오시면 자모실을 이용할 수 있습니다.',by:'박권사',time:'04:15'},
+ {id:'gym',name:'체육관',state:'open',desc:'1층 경사로로 들어올 수 있습니다. 예배 중 출차도 가능합니다.',by:'이집사',time:'04:17'}
 ];
-let logs=['04:17 체육관 → 입장 가능','04:15 드림센터 → 지금 권장','04:11 송림 본당 → 입장 마감','04:02 송림 본당 → 혼잡'];
+let logs=['04:17 체육관 · 입장 가능','04:15 드림센터 · 여유 있음','04:11 송림 본당 · 입장 마감','04:02 송림 본당 · 혼잡'];
 const week=[['월','9.21','하나님이 시작하신 일'],['화','9.22','기다림 속의 믿음'],['수','9.23','다시 사랑할 용기'],['목','9.24','끝까지 이루시는 하나님'],['금','9.25','삶으로 드리는 예배'],['토','9.26','함께 걷는 공동체']];
 function load(){try{return {...initial,...JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}')}}catch(e){return {...initial}}}
 function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify(app));renderAll()}
 function showView(name){document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id==='view-'+name));document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===name));window.scrollTo({top:0,behavior:'smooth'});renderAll()}
 function setPhase(next){phase=next;document.querySelectorAll('[data-phase]').forEach(b=>b.classList.toggle('active',b.dataset.phase===next));document.getElementById('before-content').style.display=next==='before'?'block':'none';document.getElementById('after-content').style.display=next==='after'?'block':'none';if(next==='after'&&app.attendanceToday&&!app.attendedDays.includes(3))app.attendedDays.push(3);save()}
-function toggleAttendance(){app.attendanceToday=!app.attendanceToday;if(app.attendanceToday&&!app.attendedDays.includes(3))app.attendedDays.push(3);if(!app.attendanceToday)app.attendedDays=app.attendedDays.filter(d=>d!==3);save();notify(app.attendanceToday?'오늘 참석이 기록되었습니다':'오늘 참석 기록을 취소했습니다')}
-function toggleTomorrow(){app.tomorrowPlan=!app.tomorrowPlan;save();notify(app.tomorrowPlan?'내일 참석 예정으로 기록했습니다':'내일 참석 예정을 취소했습니다')}
-function chooseVenue(id){app.selectedVenue=id;save();notify(id==='online'?'온라인 예배를 선택했습니다':'참석 공간을 선택했습니다')}
+function toggleAttendance(){app.attendanceToday=!app.attendanceToday;if(app.attendanceToday&&!app.attendedDays.includes(3))app.attendedDays.push(3);if(!app.attendanceToday)app.attendedDays=app.attendedDays.filter(d=>d!==3);save();notify(app.attendanceToday?'오늘 참석으로 표시했습니다':'오늘 참석 표시를 취소했습니다')}
+function toggleTomorrow(){app.tomorrowPlan=!app.tomorrowPlan;save();notify(app.tomorrowPlan?'내일 참석 예정으로 표시했습니다':'내일 참석 표시를 취소했습니다')}
+function chooseVenue(id){app.selectedVenue=id;save();notify(id==='online'?'온라인 참석으로 표시했습니다':'참석할 장소를 골랐습니다')}
 function toggleShare(){document.getElementById('share-panel').classList.toggle('open')}
-function previewMoment(input){if(!document.getElementById('share-consent').checked){input.value='';notify('촬영·공유 동의를 먼저 확인해주세요');return}if(!input.files||!input.files[0])return;const out=document.getElementById('uploaded-preview');out.textContent='✓ '+input.files[0].name+' · 운영팀 확인 대기';out.classList.add('show');notify('오늘의 현장 로그에 제출되었습니다')}
+function previewMoment(input){if(!document.getElementById('share-consent').checked){input.value='';notify('촬영과 공유에 동의했는지 먼저 확인해 주세요');return}if(!input.files||!input.files[0])return;const out=document.getElementById('uploaded-preview');out.textContent='✓ '+input.files[0].name+' · 운영팀 확인 중';out.classList.add('show');notify('운영팀에 확인을 요청했습니다')}
 function selectAction(el,text){document.querySelectorAll('.action').forEach(x=>x.classList.remove('selected'));el.classList.add('selected');document.getElementById('commit-input').value=text}
-function saveCommit(){const input=document.getElementById('commit-input');const val=input.value.trim();if(!val){notify('오늘 실천할 내용을 먼저 골라주세요');return}app.commit=val;save();notify('오늘의 일새로 저장했습니다')}
-function toggleDaily(){if(!app.commit){showView('today');setPhase('after');notify('먼저 오늘의 일새를 정해주세요');return}const has=app.dailyDone.includes(3);app.dailyDone=has?app.dailyDone.filter(d=>d!==3):[...app.dailyDone,3];save();notify(has?'완료 표시를 되돌렸습니다':'오늘의 작은 걸음을 완료했습니다')}
-function setVenueState(id,state){const venue=venues.find(v=>v.id===id);venue.state=state;venue.by='운영자 데모';venue.time='04:18';logs.unshift('04:18 '+venue.name+' → '+STATES[state][0]);renderVenues();renderOperator();notify(venue.name+' 상태가 갱신되었습니다')}
-function renderVenues(){document.getElementById('venue-grid').innerHTML=venues.map(v=>{const st=STATES[v.state];const picked=app.selectedVenue===v.id;return `<article class="venue ${v.state==='reco'?'recommended':''}"><div><div class="venue-top"><div><h3>${v.name}</h3><p class="desc">${v.desc}</p></div><span class="badge ${st[1]}">${st[0]}</span></div></div><div><div class="meta">${v.time} 갱신 · ${v.by} 확인</div>${v.state!=='full'?`<button class="pick ${picked?'selected':''}" onclick="chooseVenue('${v.id}')">${picked?'✓ 이곳으로 참석':'이곳으로 참석'}</button>`:''}</div></article>`}).join('')}
-function renderAttendance(){const b=document.getElementById('attend-btn'),t=document.getElementById('tomorrow-btn');b.textContent=app.attendanceToday?'✓ 오늘 참석 기록됨':'오늘 참석했어요';b.classList.toggle('done',app.attendanceToday);t.textContent=app.tomorrowPlan?'✓ 내일 참석 예정':'내일도 참석할게요';t.classList.toggle('done',app.tomorrowPlan);document.getElementById('attend-title').textContent=app.attendanceToday?'오늘도 함께해요':'특새에 함께하시나요?';document.getElementById('attend-copy').textContent=app.attendanceToday?(app.selectedVenue?'선택한 예배 자리와 함께 주간 여정에 기록했어요.':'현장 또는 온라인 공간을 아래에서 선택할 수 있어요.'):'오늘과 내일 참석 의향을 남기면 현장 준비에 도움이 됩니다.';document.getElementById('live-total').textContent=(2659+(app.attendanceToday?1:0)).toLocaleString('ko-KR')+'명';document.getElementById('onsite-total').textContent=(2041+(app.attendanceToday&&app.selectedVenue!=='online'?1:0)).toLocaleString('ko-KR');document.getElementById('tomorrow-total').textContent=(1384+(app.tomorrowPlan?1:0)).toLocaleString('ko-KR')}
-function renderCommit(){const box=document.getElementById('commit-saved');if(app.commit){box.textContent='✓ 오늘의 일새: '+app.commit;box.classList.add('show')}else box.classList.remove('show');document.getElementById('daily-action-title').textContent=app.commit||'아직 오늘의 실천을 정하지 않았어요';document.getElementById('daily-action-copy').textContent=app.commit?'오늘 안에 작게 실천하고 완료를 눌러주세요.':'예배 후 화면에서 하나를 고르면 이곳에 이어집니다.';const done=app.dailyDone.includes(3);const btn=document.getElementById('daily-check');btn.textContent=done?'✓ 오늘 실천 완료':'실천 완료';btn.classList.toggle('done',done)}
+function saveCommit(){const input=document.getElementById('commit-input');const val=input.value.trim();if(!val){notify('오늘 할 일을 먼저 골라주세요');return}app.commit=val;save();notify('오늘 할 일로 저장했습니다')}
+function toggleDaily(){if(!app.commit){showView('today');setPhase('after');notify('오늘 할 일을 먼저 골라주세요');return}const has=app.dailyDone.includes(3);app.dailyDone=has?app.dailyDone.filter(d=>d!==3):[...app.dailyDone,3];save();notify(has?'완료 표시를 취소했습니다':'오늘 일새를 완료했습니다')}
+function setVenueState(id,state){const venue=venues.find(v=>v.id===id);venue.state=state;venue.by='운영자 데모';venue.time='04:18';logs.unshift('04:18 '+venue.name+' · '+STATES[state][0]);renderVenues();renderOperator();notify(venue.name+' 상태를 바꿨습니다')}
+function renderVenues(){document.getElementById('venue-grid').innerHTML=venues.map(v=>{const st=STATES[v.state];const picked=app.selectedVenue===v.id;return `<article class="venue ${v.state==='reco'?'recommended':''}"><div><div class="venue-top"><div><h3>${v.name}</h3><p class="desc">${v.desc}</p></div><span class="badge ${st[1]}">${st[0]}</span></div></div><div><div class="meta">${v.time} · ${v.by} 확인</div>${v.state!=='full'?`<button class="pick ${picked?'selected':''}" onclick="chooseVenue('${v.id}')">${picked?'✓ 참석 장소로 선택':'여기서 예배드릴게요'}</button>`:''}</div></article>`}).join('')}
+function renderAttendance(){const b=document.getElementById('attend-btn'),t=document.getElementById('tomorrow-btn');b.textContent=app.attendanceToday?'✓ 오늘 참석':'오늘 왔어요';b.classList.toggle('done',app.attendanceToday);t.textContent=app.tomorrowPlan?'✓ 내일 참석 예정':'내일도 올게요';t.classList.toggle('done',app.tomorrowPlan);document.getElementById('attend-title').textContent=app.attendanceToday?'오늘도 함께해요':'오늘 특새에 오셨나요?';document.getElementById('attend-copy').textContent=app.attendanceToday?(app.selectedVenue?'참석 장소와 오늘 출석을 표시했습니다.':'아래에서 참석한 곳을 골라주세요.'):'오늘 왔는지, 내일 올 예정인지 알려주시면 자리 준비에 도움이 됩니다.';document.getElementById('live-total').textContent=(2659+(app.attendanceToday?1:0)).toLocaleString('ko-KR')+'명';document.getElementById('onsite-total').textContent=(2041+(app.attendanceToday&&app.selectedVenue!=='online'?1:0)).toLocaleString('ko-KR');document.getElementById('tomorrow-total').textContent=(1384+(app.tomorrowPlan?1:0)).toLocaleString('ko-KR')}
+function renderCommit(){const box=document.getElementById('commit-saved');if(app.commit){box.textContent='✓ 오늘의 일새: '+app.commit;box.classList.add('show')}else box.classList.remove('show');document.getElementById('daily-action-title').textContent=app.commit||'오늘 할 일을 아직 고르지 않았어요';document.getElementById('daily-action-copy').textContent=app.commit?'실천한 뒤 아래 버튼을 눌러주세요.':'예배 후 화면에서 오늘 할 일을 골라주세요.';const done=app.dailyDone.includes(3);const btn=document.getElementById('daily-check');btn.textContent=done?'✓ 오늘 했어요':'했어요';btn.classList.toggle('done',done)}
 function renderDays(){document.getElementById('days-strip').innerHTML=week.map((d,i)=>`<div class="day-mini ${app.dailyDone.includes(i)?'done':''} ${i===3?'today':''}"><span>${d[0]}</span><b>${d[1].split('.')[1]}</b><span>${i===3?'오늘':(app.dailyDone.includes(i)?'완료':'·')}</span></div>`).join('')}
-function renderWeek(){document.getElementById('week-rows').innerHTML=week.map((d,i)=>`<div class="week-row ${i===3?'today':''}"><div class="date"><b>${d[0]}</b><small>${d[1]}</small></div><div class="theme">${d[2]}</div><div class="status-chip ${app.attendedDays.includes(i)?'yes':''}">${app.attendedDays.includes(i)?'✓ 참석':'예정'}</div><div class="status-chip ${app.dailyDone.includes(i)?'yes':''}">${app.dailyDone.includes(i)?'✓ 일새':'미완료'}</div></div>`).join('');document.getElementById('summary-count').textContent=app.attendedDays.length+'/6';document.getElementById('summary-daily').textContent='일새 실천 '+app.dailyDone.length+'일 완료'}
+function renderWeek(){document.getElementById('week-rows').innerHTML=week.map((d,i)=>`<div class="week-row ${i===3?'today':''}"><div class="date"><b>${d[0]}</b><small>${d[1]}</small></div><div class="theme">${d[2]}</div><div class="status-chip ${app.attendedDays.includes(i)?'yes':''}">${app.attendedDays.includes(i)?'✓ 참석':'예정'}</div><div class="status-chip ${app.dailyDone.includes(i)?'yes':''}">${app.dailyDone.includes(i)?'✓ 일새':'아직'}</div></div>`).join('');document.getElementById('summary-count').textContent=app.attendedDays.length+'/6';document.getElementById('summary-daily').textContent='일새를 실천한 날 '+app.dailyDone.length+'일'}
 function renderOperator(){document.getElementById('op-list').innerHTML=venues.map(v=>`<div class="op-venue"><div class="op-head"><strong>${v.name}</strong><span class="badge ${STATES[v.state][1]}">${STATES[v.state][0]}</span></div><div class="op-buttons">${Object.entries(STATES).map(([key,val])=>`<button class="${key===v.state?'selected':''}" onclick="setVenueState('${v.id}','${key}')">${val[0]}</button>`).join('')}</div></div>`).join('');document.getElementById('op-logs').innerHTML=logs.slice(0,7).map(x=>`<div class="log-line">${x}</div>`).join('')}
 function renderNotes(){const w=document.getElementById('word-note'),p=document.getElementById('prayer-note');if(document.activeElement!==w)w.value=app.notes.word||'';if(document.activeElement!==p)p.value=app.notes.prayer||''}
 function renderAll(){renderVenues();renderAttendance();renderCommit();renderDays();renderWeek();renderOperator();renderNotes()}
