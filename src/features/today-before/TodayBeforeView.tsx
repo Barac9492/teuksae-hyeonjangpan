@@ -54,9 +54,13 @@ export function TodayBeforeView({
                 : "오늘 특새에 오셨나요?"}
             </h3>
             <p>
-              {attendance.today
-                ? "참석을 변경하려면 다시 누르세요. 공식 집계가 아니라 이 기기의 운영 리허설 숫자만 바뀝니다."
-                : "버튼을 누르면 데모 운영 리허설 숫자가 1명 단위로 바뀌고 이 기기에 저장됩니다."}
+              {repositoryMode === "remote"
+                ? attendance.today
+                  ? "참석을 변경하려면 다시 누르세요. 운영 리허설 공유 집계에 반영됩니다."
+                  : "이름이나 연락처 없이 운영 리허설 공유 집계에 반영됩니다."
+                : attendance.today
+                  ? "참석을 변경하려면 다시 누르세요. 이 기기의 운영 리허설 숫자만 바뀝니다."
+                  : "버튼을 누르면 운영 리허설 숫자가 1명 단위로 바뀌고 이 기기에 저장됩니다."}
             </p>
           </div>
           <div className="attend-actions">
