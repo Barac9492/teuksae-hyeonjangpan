@@ -124,7 +124,7 @@ set search_path = ''
 as $$
   select
     auth.uid() is not null
-    and pg_catalog.coalesce((auth.jwt() ->> 'is_anonymous')::boolean, false) = false
+    and coalesce((auth.jwt() ->> 'is_anonymous')::boolean, false) = false
     and exists (
       select 1
       from public.operator_members as member
@@ -234,7 +234,7 @@ as $$
       and attendance.day_key = event.day_key
   ),
   venue_json as (
-    select pg_catalog.coalesce(
+    select coalesce(
       pg_catalog.jsonb_agg(
         pg_catalog.jsonb_build_object(
           'id', venue.id,
@@ -268,11 +268,11 @@ as $$
     'event_id', event.id,
     'day_key', event.day_key,
     'official_approved', event.official_approved,
-    'today_total', pg_catalog.coalesce(counts.today_total, 0),
-    'onsite_total', pg_catalog.coalesce(counts.onsite_total, 0),
-    'online_total', pg_catalog.coalesce(counts.online_total, 0),
-    'unselected_total', pg_catalog.coalesce(counts.unselected_total, 0),
-    'tomorrow_total', pg_catalog.coalesce(counts.tomorrow_total, 0),
+    'today_total', coalesce(counts.today_total, 0),
+    'onsite_total', coalesce(counts.onsite_total, 0),
+    'online_total', coalesce(counts.online_total, 0),
+    'unselected_total', coalesce(counts.unselected_total, 0),
+    'tomorrow_total', coalesce(counts.tomorrow_total, 0),
     'venues', venue_json.venues,
     'my_attendance', case
       when auth.uid() is null then null
@@ -413,7 +413,7 @@ begin
     raise exception 'unknown venue';
   end if;
 
-  select pg_catalog.coalesce(member.display_name, member.email, '운영자')
+  select coalesce(member.display_name, member.email, '운영자')
   into v_actor
   from public.operator_members as member
   where member.auth_user_id = auth.uid()
@@ -481,7 +481,7 @@ begin
   update public.moment_submissions as moment
   set
     status = p_status,
-    review_note = pg_catalog.nullif(pg_catalog.btrim(p_note), ''),
+    review_note = nullif(pg_catalog.btrim(p_note), ''),
     reviewed_by = auth.uid(),
     reviewed_at = pg_catalog.now()
   where moment.id = p_moment_id
