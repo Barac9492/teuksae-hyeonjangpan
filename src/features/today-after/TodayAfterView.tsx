@@ -1,5 +1,5 @@
-import type { AppConfig } from '../../domain/config';
-import type { AppSnapshot } from '../../domain/types';
+import type { AppConfig } from "../../domain/config";
+import type { AppSnapshot } from "../../domain/types";
 
 interface TodayAfterViewProps {
   config: AppConfig;
@@ -29,10 +29,13 @@ export function TodayAfterView({
         </div>
         <aside className="post-note">
           <p className="pulse-label">오늘 참석 예시 합계</p>
-          <p className="pulse-num">{publicCounts.todayTotal.toLocaleString('ko-KR')}명</p>
+          <p className="pulse-num">
+            {publicCounts.todayTotal.toLocaleString("ko-KR")}명
+          </p>
           <p>
-            현장 {publicCounts.onsiteTotal.toLocaleString('ko-KR')}명 · 온라인{' '}
-            {publicCounts.onlineTotal.toLocaleString('ko-KR')}명
+            현장 {publicCounts.onsiteTotal.toLocaleString("ko-KR")}명 · 온라인{" "}
+            {publicCounts.onlineTotal.toLocaleString("ko-KR")}명 · 장소 미선택{" "}
+            {publicCounts.unselectedTotal.toLocaleString("ko-KR")}명
             <br />
             <br />
             아래 실천과 개인 기록은 이 기기에만 저장됩니다.
@@ -54,10 +57,12 @@ export function TodayAfterView({
               key={option}
               type="button"
               aria-label={option}
-              className={`action ${inputValue === option ? 'selected' : ''}`}
+              className={`action ${inputValue === option ? "selected" : ""}`}
               onClick={() => onSelectPracticeAction(option)}
             >
-              <span className="num">{String(index + 1).padStart(2, '0')} · 실천</span>
+              <span className="num">
+                {String(index + 1).padStart(2, "0")} · 실천
+              </span>
               <strong>{option}</strong>
               <span>오늘 안에 짧게 실천해 보세요.</span>
             </button>
@@ -73,7 +78,11 @@ export function TodayAfterView({
             onChange={(event) => onSelectPracticeAction(event.target.value)}
             placeholder="직접 적어도 됩니다"
           />
-          <button type="button" className="solid" onClick={() => onSelectPracticeAction(inputValue)}>
+          <button
+            type="button"
+            className="solid"
+            onClick={() => onSelectPracticeAction(inputValue)}
+          >
             오늘 실천으로 저장
           </button>
         </div>

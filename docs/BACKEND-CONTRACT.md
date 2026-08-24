@@ -1,98 +1,25 @@
-# 백엔드 연동 계약 초안
+# Supabase 백엔드 계약
 
-현재 앱은 로컬 모드만 동작한다. 아래는 향후 `remote` 어댑터 추가 시 참고할 계약 초안이다.
+실행 가능한 전체 계약은 [`supabase/migrations/001_production_pilot.sql`](../supabase/migrations/001_production_pilot.sql)이다.
 
-## 공통 원칙
+## 테이블
 
-- 개인정보 최소화
-- 운영 로그는 불변 이벤트로 저장
-- **`wordNote`와 `prayerNote`는 어떤 원격 페이로드에도 포함하지 않는다** (로컬 전용, 영구 제외)
-- `checking`은 공개 표시용 파생 상태이며 원본 상태는 이벤트 로그를 기준으로 판단
+- `app_events`: 날짜를 하드코딩하지 않는 active event 및 승인 gate
+- `venues`: 네 장소의 원본 상태. 10분 stale은 클라이언트 파생 표시
+- `attendance_checkins`: `(auth_user_id,event_id,day_key)`별 현재 참석 상태
+- `attendance_mutation_receipts`: `(request_id,auth_user_id,event_id,day_key)` 불변 처리 영수증. RLS는 켜고 클라이언트 grant/policy는 두지 않는다.
+- `venue_state_events`: `actor_user_id`가 포함된 immutable audit rows
+- `operator_members`: 비익명 email 사용자의 `auth.uid()` allowlist
+- `moment_submissions`: 동의된 20MB 이하 허용 MIME metadata, 기본 `pending_review`
 
-## 원격 동기화 대상
+모든 테이블은 RLS가 켜져 있고 테이블 권한은 먼저 revoke한 뒤 필요한 select/insert만 명시적으로 grant한다. 공개 첫 읽기는 `anon` 역할이 `get_public_snapshot()`을 실행하며 사용자 행이나 `my_attendance`를 받지 않는다. 인증된 사용자는 자기 attendance와 자기 pending submission만 다룬다.
 
-```typescript
-// 서버로 보낼 수 있는 개인 실천 필드
-interface PersonalPracticeRemoteSafe {
-  selectedAction: string;
-  completedDayIndexes: number[];
-}
+## RPC
 
-// 절대 전송 금지
-interface PersonalPracticeRemoteExcluded {
-  wordNote: never;
-  prayerNote: never;
-}
-```
+- `get_public_snapshot()`: anon/authenticated 실행 가능, 집계와 장소만 공개
+- `set_my_attendance(...)`: authenticated 전용. event/day를 검증하고 receipt 삽입과 attendance upsert를 한 트랜잭션에서 처리한다. receipt가 이미 있으면 현재 snapshot만 반환하고 과거 payload를 다시 적용하지 않는다.
+- `is_operator()`: authenticated 전용, anonymous JWT를 명시적으로 거부
+- `set_venue_state(...)`: allowlist와 입력을 재검사하고 actor UUID를 기록
+- `review_moment(...)`: allowlist, 상태, note 길이를 검증
 
-## 제안 엔드포인트
-
-### `GET /v1/public/snapshot`
-
-공개 스냅샷(장소 상태, 집계 숫자).
-
-```json
-{
-  "updatedAt": "2026-08-24T04:17:00.000Z",
-  "venues": [
-    {
-      "id": "dream",
-      "name": "드림센터",
-      "state": "recommended",
-      "description": "지금은 자리가 여유롭습니다.",
-      "updatedAt": "2026-08-24T04:15:00.000Z",
-      "updatedBy": "현장 담당자"
-    }
-  ],
-  "publicCounts": {
-    "todayTotal": 2659,
-    "onsiteTotal": 2041,
-    "onlineTotal": 618,
-    "tomorrowTotal": 1384
-  }
-}
-```
-
-### `POST /v1/attendance`
-
-```json
-{
-  "today": true,
-  "tomorrow": false,
-  "selectedVenue": "online"
-}
-```
-
-> 개인 메모 필드는 요청 본문에 포함하지 않는다.
-
-### `POST /v1/operator/venue-state`
-
-```json
-{
-  "venueId": "songrim",
-  "state": "full",
-  "updatedBy": "운영자"
-}
-```
-
-응답에는 저장된 이벤트 ID와 서버 시각을 포함한다.
-
-### 모먼트 업로드(향후)
-
-1. `POST /v1/moments/upload-url` — 사전 서명 URL 발급
-2. 클라이언트가 스토리지에 직접 업로드
-3. `POST /v1/moments` — 메타데이터 등록 (`status: pending_review`)
-
-v1에서는 이 과정을 구현하지 않는다.
-
-## 이벤트 스트림(선택)
-
-- `venue.state.changed`
-- `public.counts.updated`
-- `moment.pending_review.created`
-
-모든 이벤트에 `eventId`, `occurredAt`, `source`, `schemaVersion`을 포함한다.
-
-## 클라이언트 전환
-
-백엔드 연결 시 `RemoteAppRepository`(또는 하이브리드)를 구현하고 `mode: 'remote'`로 `capabilities`를 갱신한다. 오프라인 리허설과 데모용으로 `LocalAppRepository`는 유지한다.
+모든 `SECURITY DEFINER` 함수는 `SET search_path = ''`이고 내부 스키마와 함수를 완전히 한정한다. service-role key는 클라이언트 계약에 없으며 사용하지 않는다. 승인 미디어도 자동 공개하지 않는다. Storage delete는 `owner_id`가 아니라 인증 사용자 UUID로 시작하는 owned path만 허용한다.

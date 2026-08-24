@@ -1,4 +1,4 @@
-import type { AppConfig } from '../domain/config';
+import type { AppConfig } from "../domain/config";
 import type {
   AppSnapshot,
   Attendance,
@@ -10,13 +10,14 @@ import type {
   VenueState,
   VenueStatus,
   WeekDayPlan,
-} from '../domain/types';
-import type { AppRepository } from './AppRepository';
-import { createSeedSnapshot } from './seed';
+} from "../domain/types";
+import type { AppRepository } from "./AppRepository";
+import type { RepositoryStatus } from "./remote/types";
+import { createSeedSnapshot } from "./seed";
 
-const STORAGE_KEY = 'teuksae-app-v1-snapshot';
+const STORAGE_KEY = "teuksae-app-v1-snapshot";
 const STORAGE_VERSION = 1;
-const CHANNEL_NAME = 'teuksae-app-v1-channel';
+const CHANNEL_NAME = "teuksae-app-v1-channel";
 
 interface PersistedPayload {
   version: number;
@@ -24,7 +25,10 @@ interface PersistedPayload {
 }
 
 function generateId(): string {
-  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+  if (
+    typeof crypto !== "undefined" &&
+    typeof crypto.randomUUID === "function"
+  ) {
     return crypto.randomUUID();
   }
   return `id-${Date.now()}-${Math.floor(Math.random() * 100000)}`;
@@ -35,101 +39,107 @@ function cloneSnapshot(snapshot: AppSnapshot): AppSnapshot {
 }
 
 function isVenueId(value: unknown): value is VenueId {
-  return value === 'songrim' || value === 'dream' || value === 'gym' || value === 'online';
+  return (
+    value === "songrim" ||
+    value === "dream" ||
+    value === "gym" ||
+    value === "online"
+  );
 }
 
 function isVenueState(value: unknown): value is VenueState {
   return (
-    value === 'preparing' ||
-    value === 'open' ||
-    value === 'recommended' ||
-    value === 'busy' ||
-    value === 'full' ||
-    value === 'checking'
+    value === "preparing" ||
+    value === "open" ||
+    value === "recommended" ||
+    value === "busy" ||
+    value === "full" ||
+    value === "checking"
   );
 }
 
 function isAttendance(value: unknown): value is Attendance {
-  if (typeof value !== 'object' || value === null) {
+  if (typeof value !== "object" || value === null) {
     return false;
   }
   const candidate = value as Attendance;
   return (
-    typeof candidate.today === 'boolean' &&
-    typeof candidate.tomorrow === 'boolean' &&
+    typeof candidate.today === "boolean" &&
+    typeof candidate.tomorrow === "boolean" &&
     (candidate.selectedVenue === null || isVenueId(candidate.selectedVenue)) &&
     Array.isArray(candidate.attendanceDayIndexes)
   );
 }
 
 function isPractice(value: unknown): value is PersonalPractice {
-  if (typeof value !== 'object' || value === null) {
+  if (typeof value !== "object" || value === null) {
     return false;
   }
   const candidate = value as PersonalPractice;
   return (
-    typeof candidate.selectedAction === 'string' &&
+    typeof candidate.selectedAction === "string" &&
     Array.isArray(candidate.completedDayIndexes) &&
-    typeof candidate.wordNote === 'string' &&
-    typeof candidate.prayerNote === 'string'
+    typeof candidate.wordNote === "string" &&
+    typeof candidate.prayerNote === "string"
   );
 }
 
 function isVenueStatus(value: unknown): value is VenueStatus {
-  if (typeof value !== 'object' || value === null) {
+  if (typeof value !== "object" || value === null) {
     return false;
   }
   const candidate = value as VenueStatus;
   return (
     isVenueId(candidate.id) &&
-    typeof candidate.name === 'string' &&
+    typeof candidate.name === "string" &&
     isVenueState(candidate.state) &&
-    typeof candidate.description === 'string' &&
-    typeof candidate.updatedAt === 'string' &&
-    typeof candidate.updatedBy === 'string'
+    typeof candidate.description === "string" &&
+    typeof candidate.updatedAt === "string" &&
+    typeof candidate.updatedBy === "string"
   );
 }
 
 function isOperatorLog(value: unknown): value is OperatorLog {
-  if (typeof value !== 'object' || value === null) {
+  if (typeof value !== "object" || value === null) {
     return false;
   }
   const candidate = value as OperatorLog;
   return (
-    typeof candidate.id === 'string' &&
+    typeof candidate.id === "string" &&
     isVenueId(candidate.venueId) &&
     isVenueState(candidate.before) &&
     isVenueState(candidate.after) &&
-    typeof candidate.updatedAt === 'string' &&
-    typeof candidate.updatedBy === 'string'
+    typeof candidate.updatedAt === "string" &&
+    typeof candidate.updatedBy === "string"
   );
 }
 
 function isMomentDraft(value: unknown): value is MomentDraft {
-  if (typeof value !== 'object' || value === null) {
+  if (typeof value !== "object" || value === null) {
     return false;
   }
   const candidate = value as MomentDraft;
   return (
-    typeof candidate.id === 'string' &&
-    typeof candidate.fileName === 'string' &&
-    typeof candidate.mediaType === 'string' &&
-    typeof candidate.size === 'number' &&
-    candidate.status === 'pending_review' &&
-    typeof candidate.createdAt === 'string'
+    typeof candidate.id === "string" &&
+    typeof candidate.fileName === "string" &&
+    typeof candidate.mediaType === "string" &&
+    typeof candidate.size === "number" &&
+    candidate.status === "pending_review" &&
+    typeof candidate.createdAt === "string"
   );
 }
 
 function isPublicCounts(value: unknown): value is PublicCounts {
-  if (typeof value !== 'object' || value === null) {
+  if (typeof value !== "object" || value === null) {
     return false;
   }
   const candidate = value as PublicCounts;
   return (
-    typeof candidate.todayTotal === 'number' &&
-    typeof candidate.onsiteTotal === 'number' &&
-    typeof candidate.onlineTotal === 'number' &&
-    typeof candidate.tomorrowTotal === 'number'
+    typeof candidate.todayTotal === "number" &&
+    typeof candidate.onsiteTotal === "number" &&
+    typeof candidate.onlineTotal === "number" &&
+    typeof candidate.unselectedTotal === "number" &&
+    typeof candidate.tomorrowTotal === "number"
   );
 }
 
@@ -139,16 +149,16 @@ function isWeekDays(value: unknown): value is WeekDayPlan[] {
   }
   return value.every(
     (item) =>
-      typeof item === 'object' &&
+      typeof item === "object" &&
       item !== null &&
-      typeof (item as WeekDayPlan).index === 'number' &&
-      typeof (item as WeekDayPlan).dayLabel === 'string' &&
-      typeof (item as WeekDayPlan).theme === 'string',
+      typeof (item as WeekDayPlan).index === "number" &&
+      typeof (item as WeekDayPlan).dayLabel === "string" &&
+      typeof (item as WeekDayPlan).theme === "string",
   );
 }
 
 function isAppSnapshot(value: unknown): value is AppSnapshot {
-  if (typeof value !== 'object' || value === null) {
+  if (typeof value !== "object" || value === null) {
     return false;
   }
   const candidate = value as AppSnapshot;
@@ -183,9 +193,9 @@ function parsePersistedSnapshot(rawValue: string | null): AppSnapshot | null {
 }
 
 export class LocalAppRepository implements AppRepository {
-  readonly mode = 'local' as const;
+  readonly mode = "local" as const;
   readonly capabilities = {
-    crossTabSync: typeof BroadcastChannel !== 'undefined',
+    crossTabSync: typeof BroadcastChannel !== "undefined",
     operatorWrites: true,
     momentUploadConnected: false,
     remoteSync: false,
@@ -207,7 +217,9 @@ export class LocalAppRepository implements AppRepository {
     }
 
     this.channel =
-      typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel(CHANNEL_NAME) : null;
+      typeof BroadcastChannel !== "undefined"
+        ? new BroadcastChannel(CHANNEL_NAME)
+        : null;
     if (this.channel) {
       this.channel.onmessage = (event) => {
         if (isAppSnapshot(event.data)) {
@@ -217,9 +229,26 @@ export class LocalAppRepository implements AppRepository {
       };
     }
 
-    if (typeof window !== 'undefined') {
-      window.addEventListener('storage', this.handleStorageEvent);
+    if (typeof window !== "undefined") {
+      window.addEventListener("storage", this.handleStorageEvent);
     }
+  }
+
+  destroy(): void {
+    this.channel?.close();
+    this.listeners.clear();
+    if (typeof window !== "undefined") {
+      window.removeEventListener("storage", this.handleStorageEvent);
+    }
+  }
+
+  getStatus(): RepositoryStatus {
+    return { phase: "local", queuedMutations: 0 };
+  }
+
+  subscribeStatus(listener: (status: RepositoryStatus) => void): () => void {
+    listener(this.getStatus());
+    return () => undefined;
   }
 
   getSnapshot(): AppSnapshot {
@@ -242,7 +271,11 @@ export class LocalAppRepository implements AppRepository {
     const nextSnapshot = this.getSnapshot();
     nextSnapshot.attendance.today = next;
     this.applyTodayCountDelta(nextSnapshot, next ? 1 : -1);
-    this.updateDayIndex(nextSnapshot.attendance.attendanceDayIndexes, this.config.todayIndex, next);
+    this.updateDayIndex(
+      nextSnapshot.attendance.attendanceDayIndexes,
+      this.config.todayIndex,
+      next,
+    );
     this.commit(nextSnapshot);
   }
 
@@ -268,17 +301,8 @@ export class LocalAppRepository implements AppRepository {
     nextSnapshot.attendance.selectedVenue = venueId;
 
     if (nextSnapshot.attendance.today) {
-      const wasOnline = previousVenue === 'online';
-      const isOnline = venueId === 'online';
-      if (wasOnline !== isOnline) {
-        if (isOnline) {
-          nextSnapshot.publicCounts.onlineTotal += 1;
-          nextSnapshot.publicCounts.onsiteTotal = Math.max(0, nextSnapshot.publicCounts.onsiteTotal - 1);
-        } else {
-          nextSnapshot.publicCounts.onsiteTotal += 1;
-          nextSnapshot.publicCounts.onlineTotal = Math.max(0, nextSnapshot.publicCounts.onlineTotal - 1);
-        }
-      }
+      this.applyLocationCountDelta(nextSnapshot, previousVenue, -1);
+      this.applyLocationCountDelta(nextSnapshot, venueId, 1);
     }
 
     this.commit(nextSnapshot);
@@ -292,8 +316,13 @@ export class LocalAppRepository implements AppRepository {
 
   togglePracticeCompleted(dayIndex: number): void {
     const nextSnapshot = this.getSnapshot();
-    const existing = nextSnapshot.practice.completedDayIndexes.includes(dayIndex);
-    this.updateDayIndex(nextSnapshot.practice.completedDayIndexes, dayIndex, !existing);
+    const existing =
+      nextSnapshot.practice.completedDayIndexes.includes(dayIndex);
+    this.updateDayIndex(
+      nextSnapshot.practice.completedDayIndexes,
+      dayIndex,
+      !existing,
+    );
     this.commit(nextSnapshot);
   }
 
@@ -315,7 +344,11 @@ export class LocalAppRepository implements AppRepository {
     this.commit(nextSnapshot);
   }
 
-  setVenueState(venueId: VenueId, next: VenueState, updatedBy: string): OperatorLog {
+  setVenueState(
+    venueId: VenueId,
+    next: VenueState,
+    updatedBy: string,
+  ): OperatorLog {
     const nextSnapshot = this.getSnapshot();
     const venue = nextSnapshot.venues.find((item) => item.id === venueId);
     if (!venue) {
@@ -340,15 +373,39 @@ export class LocalAppRepository implements AppRepository {
   }
 
   private applyTodayCountDelta(nextSnapshot: AppSnapshot, delta: number): void {
-    nextSnapshot.publicCounts.todayTotal = Math.max(0, nextSnapshot.publicCounts.todayTotal + delta);
-    if (nextSnapshot.attendance.selectedVenue === 'online') {
-      nextSnapshot.publicCounts.onlineTotal = Math.max(0, nextSnapshot.publicCounts.onlineTotal + delta);
-      return;
-    }
-    nextSnapshot.publicCounts.onsiteTotal = Math.max(0, nextSnapshot.publicCounts.onsiteTotal + delta);
+    nextSnapshot.publicCounts.todayTotal = Math.max(
+      0,
+      nextSnapshot.publicCounts.todayTotal + delta,
+    );
+    this.applyLocationCountDelta(
+      nextSnapshot,
+      nextSnapshot.attendance.selectedVenue,
+      delta,
+    );
   }
 
-  private updateDayIndex(list: number[], dayIndex: number, include: boolean): void {
+  private applyLocationCountDelta(
+    nextSnapshot: AppSnapshot,
+    venueId: VenueId | null,
+    delta: number,
+  ): void {
+    const key =
+      venueId === null
+        ? "unselectedTotal"
+        : venueId === "online"
+          ? "onlineTotal"
+          : "onsiteTotal";
+    nextSnapshot.publicCounts[key] = Math.max(
+      0,
+      nextSnapshot.publicCounts[key] + delta,
+    );
+  }
+
+  private updateDayIndex(
+    list: number[],
+    dayIndex: number,
+    include: boolean,
+  ): void {
     const hasIndex = list.includes(dayIndex);
     if (include && !hasIndex) {
       list.push(dayIndex);

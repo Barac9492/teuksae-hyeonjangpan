@@ -1,49 +1,60 @@
-import { useEffect, useMemo, useState } from 'react';
-import type { AppConfig } from './domain/config';
-import type { MomentDraft, VenueId, VenueState } from './domain/types';
-import type { AppRepository } from './data/AppRepository';
-import { LocalAppRepository } from './data/LocalAppRepository';
-import { DailyPracticeView } from './features/daily-practice/DailyPracticeView';
-import { Header, type AppView } from './features/header/Header';
-import { BottomNavigation } from './features/navigation/BottomNavigation';
-import { OperatorView } from './features/operator/OperatorView';
-import { TodayAfterView } from './features/today-after/TodayAfterView';
-import { TodayBeforeView } from './features/today-before/TodayBeforeView';
-import { Toast } from './features/toast/Toast';
-import { WeekSummaryView } from './features/week-summary/WeekSummaryView';
+import { useEffect, useMemo, useState } from "react";
+import type { AppRepository } from "./data/AppRepository";
+import { LocalAppRepository } from "./data/LocalAppRepository";
+import type { RepositoryStatus } from "./data/remote/types";
+import type { RuntimeBackendConfig } from "./data/runtime";
+import type { AppConfig } from "./domain/config";
+import type { MomentDraft, VenueId, VenueState } from "./domain/types";
+import { DailyPracticeView } from "./features/daily-practice/DailyPracticeView";
+import { Header, type AppView } from "./features/header/Header";
+import { BottomNavigation } from "./features/navigation/BottomNavigation";
+import { OperatorView } from "./features/operator/OperatorView";
+import { Toast } from "./features/toast/Toast";
+import { TodayAfterView } from "./features/today-after/TodayAfterView";
+import { TodayBeforeView } from "./features/today-before/TodayBeforeView";
+import { WeekSummaryView } from "./features/week-summary/WeekSummaryView";
 
 interface AppProps {
   config: AppConfig;
   repository?: AppRepository;
+  runtime?: RuntimeBackendConfig;
 }
 
-type DemoPhase = 'before' | 'after';
+type DemoPhase = "before" | "after";
 
-export default function App({ config, repository }: AppProps) {
+export default function App({ config, repository, runtime }: AppProps) {
   const repo = useMemo<AppRepository>(
     () => repository ?? new LocalAppRepository(config),
     [config, repository],
   );
 
   const [snapshot, setSnapshot] = useState(repo.getSnapshot());
-  const [activeView, setActiveView] = useState<AppView>('today');
-  const [demoPhase, setDemoPhase] = useState<DemoPhase>('before');
-  const [toastMessage, setToastMessage] = useState('');
+  const [status, setStatus] = useState<RepositoryStatus>(repo.getStatus());
+  const [activeView, setActiveView] = useState<AppView>("today");
+  const [demoPhase, setDemoPhase] = useState<DemoPhase>("before");
+  const [toastMessage, setToastMessage] = useState("");
   const [toastVisible, setToastVisible] = useState(false);
   const [online, setOnline] = useState(
-    typeof navigator !== 'undefined' ? navigator.onLine : true,
+    typeof navigator !== "undefined" ? navigator.onLine : true,
   );
 
-  useEffect(() => repo.subscribe(setSnapshot), [repo]);
+  useEffect(() => {
+    const unsubscribeSnapshot = repo.subscribe(setSnapshot);
+    const unsubscribeStatus = repo.subscribeStatus(setStatus);
+    return () => {
+      unsubscribeSnapshot();
+      unsubscribeStatus();
+    };
+  }, [repo]);
 
   useEffect(() => {
     const goOnline = (): void => setOnline(true);
     const goOffline = (): void => setOnline(false);
-    window.addEventListener('online', goOnline);
-    window.addEventListener('offline', goOffline);
+    window.addEventListener("online", goOnline);
+    window.addEventListener("offline", goOffline);
     return () => {
-      window.removeEventListener('online', goOnline);
-      window.removeEventListener('offline', goOffline);
+      window.removeEventListener("online", goOnline);
+      window.removeEventListener("offline", goOffline);
     };
   }, []);
 
@@ -53,49 +64,88 @@ export default function App({ config, repository }: AppProps) {
     window.setTimeout(() => setToastVisible(false), 2200);
   };
 
-  const handleToggleTodayAttendance = (): void => {
-    const next = !snapshot.attendance.today;
-    repo.setAttendanceToday(next);
-    showToast(next ? '오늘 참석으로 표시했습니다.' : '오늘 참석 표시를 취소했습니다.');
+  const handleAttendance = async (
+    field: "today" | "tomorrow",
+    next: boolean,
+  ): Promise<void> => {
+    try {
+      if (field === "today") {
+        await repo.setAttendanceToday(next);
+      } else {
+        await repo.setTomorrowAttendance(next);
+      }
+      showToast(
+        next
+          ? field === "today"
+            ? "오늘 참석으로 표시했습니다."
+            : "내일 참석 예정으로 표시했습니다."
+          : "참석 표시를 취소했습니다.",
+      );
+    } catch {
+      showToast("공유 상태를 바꾸지 못했습니다. 이전 상태를 유지합니다.");
+    }
   };
 
-  const handleToggleTomorrowAttendance = (): void => {
-    const next = !snapshot.attendance.tomorrow;
-    repo.setTomorrowAttendance(next);
-    showToast(next ? '내일 참석 예정으로 표시했습니다.' : '내일 참석 예정 표시를 취소했습니다.');
-  };
-
-  const handleSelectVenue = (venueId: VenueId): void => {
-    repo.selectVenue(venueId);
-    showToast(venueId === 'online' ? '온라인 예배로 선택했습니다.' : '참석 장소를 선택했습니다.');
-  };
-
-  const handleCreateMomentDraft = (draft: MomentDraft): void => {
-    repo.addMomentDraft(draft);
+  const handleSelectVenue = async (venueId: VenueId): Promise<void> => {
+    try {
+      await repo.selectVenue(venueId);
+      showToast(
+        venueId === "online"
+          ? "온라인 예배로 선택했습니다."
+          : "참석 장소를 선택했습니다.",
+      );
+    } catch {
+      showToast("공유 참석 장소를 바꾸지 못했습니다. 이전 상태를 유지합니다.");
+    }
   };
 
   const handleTogglePracticeToday = (): void => {
     if (!snapshot.practice.selectedAction) {
-      setActiveView('today');
+      setActiveView("today");
       if (config.demoMode) {
-        setDemoPhase('after');
+        setDemoPhase("after");
       }
-      showToast('먼저 오늘 실천을 선택해 주세요.');
+      showToast("먼저 오늘 실천을 선택해 주세요.");
       return;
     }
 
     repo.togglePracticeCompleted(config.todayIndex);
-    const done = !snapshot.practice.completedDayIndexes.includes(config.todayIndex);
-    showToast(done ? '오늘 실천을 완료로 기록했습니다.' : '오늘 실천 완료를 취소했습니다.');
+    const wasDone = snapshot.practice.completedDayIndexes.includes(
+      config.todayIndex,
+    );
+    showToast(
+      wasDone
+        ? "오늘 실천 완료를 취소했습니다."
+        : "오늘 실천을 완료로 기록했습니다.",
+    );
   };
 
-  const handleSetVenueState = (venueId: VenueId, nextState: VenueState): number => {
-    const start = performance.now();
-    repo.setVenueState(venueId, nextState, '운영자 로컬');
-    const end = performance.now();
-    showToast('장소 상태를 로컬에 반영했습니다.');
-    return end - start;
+  const handleSetVenueState = async (
+    venueId: VenueId,
+    nextState: VenueState,
+  ): Promise<void> => {
+    try {
+      await repo.setVenueState(
+        venueId,
+        nextState,
+        repo.mode === "local" ? "운영자 로컬" : "운영자",
+      );
+      showToast(
+        repo.mode === "remote"
+          ? "공유 장소 상태를 반영했습니다."
+          : "장소 상태를 로컬 리허설에 반영했습니다.",
+      );
+    } catch {
+      showToast("공유 장소 상태는 변경되지 않았습니다.");
+    }
   };
+
+  const official = Boolean(
+    config.officialApproved &&
+      runtime?.mode === "production" &&
+      repo.mode === "remote" &&
+      status.officialApproved === true,
+  );
 
   return (
     <div className="app-root">
@@ -104,25 +154,33 @@ export default function App({ config, repository }: AppProps) {
         churchName={config.churchName}
         activeView={activeView}
         online={online}
+        official={official}
+        status={status}
         onChangeView={setActiveView}
       />
 
-      {config.demoMode && activeView === 'today' && (
+      {config.demoMode && activeView === "today" && (
         <div className="demo-bar">
           <div className="shell demo-inner">
-            <p className="demo-copy">예배 전/후 화면은 데모 모드에서만 전환됩니다.</p>
-            <div className="phase-switch" role="group" aria-label="예배 전후 전환">
+            <p className="demo-copy">
+              운영 리허설에서 예배 전/후 화면을 전환합니다.
+            </p>
+            <div
+              className="phase-switch"
+              role="group"
+              aria-label="예배 전후 전환"
+            >
               <button
                 type="button"
-                className={demoPhase === 'before' ? 'active' : ''}
-                onClick={() => setDemoPhase('before')}
+                className={demoPhase === "before" ? "active" : ""}
+                onClick={() => setDemoPhase("before")}
               >
                 {config.phaseLabels.before}
               </button>
               <button
                 type="button"
-                className={demoPhase === 'after' ? 'active' : ''}
-                onClick={() => setDemoPhase('after')}
+                className={demoPhase === "after" ? "active" : ""}
+                onClick={() => setDemoPhase("after")}
               >
                 {config.phaseLabels.after}
               </button>
@@ -132,19 +190,33 @@ export default function App({ config, repository }: AppProps) {
       )}
 
       <main className="shell app-main" id="main-content">
-        {activeView === 'today' && (!config.demoMode || demoPhase === 'before') && (
-          <TodayBeforeView
-            config={config}
-            snapshot={snapshot}
-            onToggleTodayAttendance={handleToggleTodayAttendance}
-            onToggleTomorrowAttendance={handleToggleTomorrowAttendance}
-            onSelectVenue={handleSelectVenue}
-            onCreateMomentDraft={handleCreateMomentDraft}
-            onToast={showToast}
-          />
-        )}
+        {activeView === "today" &&
+          (!config.demoMode || demoPhase === "before") && (
+            <TodayBeforeView
+              config={config}
+              snapshot={snapshot}
+              onToggleTodayAttendance={() =>
+                void handleAttendance("today", !snapshot.attendance.today)
+              }
+              onToggleTomorrowAttendance={() =>
+                void handleAttendance("tomorrow", !snapshot.attendance.tomorrow)
+              }
+              onSelectVenue={(venueId) => void handleSelectVenue(venueId)}
+              onCreateMomentDraft={(draft: MomentDraft) =>
+                repo.addMomentDraft(draft)
+              }
+              onUploadMoment={repo.uploadMoment?.bind(repo)}
+              repositoryMode={repo.mode}
+              connected={
+                repo.mode === "remote" &&
+                status.phase !== "offline" &&
+                status.phase !== "error"
+              }
+              onToast={showToast}
+            />
+          )}
 
-        {activeView === 'today' && config.demoMode && demoPhase === 'after' && (
+        {activeView === "today" && config.demoMode && demoPhase === "after" && (
           <TodayAfterView
             config={config}
             snapshot={snapshot}
@@ -154,7 +226,7 @@ export default function App({ config, repository }: AppProps) {
           />
         )}
 
-        {activeView === 'daily' && (
+        {activeView === "daily" && (
           <DailyPracticeView
             config={config}
             snapshot={snapshot}
@@ -162,10 +234,17 @@ export default function App({ config, repository }: AppProps) {
           />
         )}
 
-        {activeView === 'week' && <WeekSummaryView config={config} snapshot={snapshot} />}
+        {activeView === "week" && (
+          <WeekSummaryView config={config} snapshot={snapshot} />
+        )}
 
-        {activeView === 'operator' && (
-          <OperatorView snapshot={snapshot} onSetVenueState={handleSetVenueState} />
+        {activeView === "operator" && (
+          <OperatorView
+            snapshot={snapshot}
+            repository={repo}
+            onSetVenueState={handleSetVenueState}
+            onToast={showToast}
+          />
         )}
       </main>
 

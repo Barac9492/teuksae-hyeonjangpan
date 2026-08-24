@@ -1,57 +1,23 @@
 # 특새 현장판
 
-분당우리교회 특별새벽부흥회 기간에 사용할 **교회 공식 모바일 현장판** (PWA v1).
+특별새벽부흥회 현장 안내, 익명 참석 표시, 개인 실천 기록을 제공하는 PWA입니다. 승인 전 모든 원격 데이터는 **운영 리허설**로 표시됩니다.
 
-> 예배 전에는 장소별 혼잡도와 안전 정보를 확인하고 참석 여부를 표시합니다.
-> 예배 후에는 받은 말씀을 오늘 실천할 한 가지로 정해 특새를 일새로 이어갑니다.
-
-## 빠른 시작
-
+## 실행
 ```bash
 npm install
+cp .env.example .env.local
 npm run dev
-```
-
-프로덕션 빌드:
-
-```bash
-npm run build
-npm run preview
-```
-
-테스트:
-
-```bash
 npm test
+npm run lint
+npm run build
+node --check public/sw.js
 ```
 
-자세한 운영 절차는 [`docs/RUNBOOK.md`](docs/RUNBOOK.md)를 참고하세요.
+`VITE_APP_MODE=local`은 `LocalAppRepository`만 사용합니다. `pilot`은 Supabase가 연결돼도 리허설로 표시하며, 설정이 없으면 안전하게 로컬 리허설로 돌아갑니다. `production`은 URL/anon key가 없으면 앱을 중지합니다.
 
-## 화면 구성
+## 데이터 경계
+- 공유: 집계 참석 수, 장소 상태와 불변 로그, 비공개 검수 대기 미디어
+- 기기 전용: `wordNote`, `prayerNote`, 선택한 실천, 실천 완료 기록
+- 금지: 좌석 수, 리더보드, 연속 출석, 공개 피드/기도/간증, QR 출석, AI 설교 요약
 
-1. **오늘** — 예배 전 장소 안내, 참석, 2초 영상, 예배 후 말씀·일새·개인 기록
-2. **일새** — 오늘 실천 확인, 주간 일새 스트립
-3. **주간** — 나만 보는 참석·일새 기록
-4. **운영** — 장소 상태 변경 및 감사 로그 (로컬 모드)
-
-## 데모 모드
-
-`public/app-config.json`에서 `demoMode: true`이면 예배 전·후 전환과 예시 참석 숫자가 표시됩니다. 공유 백엔드는 아직 연결되지 않았으며, 모든 변경은 이 기기 `localStorage`에만 저장됩니다.
-
-## 프로토타입
-
-승인된 단일 HTML 목업은 [`prototype.html`](prototype.html)에 보관되어 있습니다. 새 앱은 Vite + React + TypeScript로 재구현되었으며, 시각 디자인과 한국어 문구를 유지합니다.
-
-## 문서
-
-- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — 현재 구현 vs 백엔드 대기 항목
-- [`docs/BACKEND-CONTRACT.md`](docs/BACKEND-CONTRACT.md) — 향후 API (개인 기록 제외)
-- [`docs/PLAN.md`](docs/PLAN.md) — 초기 조사·검증 계획
-
-## 제품 원칙
-
-- 정확한 좌석 수보다 담당자가 방금 확인한 상태를 제공합니다.
-- 본당, 드림센터, 체육관, 온라인은 같은 예배의 자리입니다.
-- 참석 인원은 순위를 매기지 않습니다.
-- 기도·간증 공개 게시판, 리더보드, AI 설교 요약은 만들지 않습니다.
-- 개인 말씀·기도 기록은 이 기기에만 저장됩니다.
+설정은 [운영 런북](docs/RUNBOOK.md), 보안 계약은 [백엔드 계약](docs/BACKEND-CONTRACT.md)을 참고하세요. 프로덕션 본문 제어는 `public/app-config.json`의 `officialApproved`, active event의 `official_approved`, `VITE_APP_MODE=production`이 모두 충족될 때만 공식 안내가 됩니다.

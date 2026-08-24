@@ -1,7 +1,11 @@
-import type { AppConfig } from '../../domain/config';
-import { deriveVenuePresentation, formatUpdatedLabel, VENUE_STATE_LABELS } from '../../domain/venue';
-import type { AppSnapshot, VenueId } from '../../domain/types';
-import { MomentsPanel } from '../moments/MomentsPanel';
+import type { AppConfig } from "../../domain/config";
+import {
+  deriveVenuePresentation,
+  formatUpdatedLabel,
+  VENUE_STATE_LABELS,
+} from "../../domain/venue";
+import type { AppSnapshot, VenueId } from "../../domain/types";
+import { MomentsPanel } from "../moments/MomentsPanel";
 
 interface TodayBeforeViewProps {
   config: AppConfig;
@@ -9,8 +13,14 @@ interface TodayBeforeViewProps {
   onToggleTodayAttendance: () => void;
   onToggleTomorrowAttendance: () => void;
   onSelectVenue: (venueId: VenueId) => void;
-  onCreateMomentDraft: (draft: AppSnapshot['moments'][number]) => void;
+  onCreateMomentDraft: (draft: AppSnapshot["moments"][number]) => void;
   onToast: (message: string) => void;
+  repositoryMode: "local" | "remote";
+  connected: boolean;
+  onUploadMoment?: (
+    file: File,
+    draft: AppSnapshot["moments"][number],
+  ) => Promise<void>;
 }
 
 export function TodayBeforeView({
@@ -21,6 +31,9 @@ export function TodayBeforeView({
   onSelectVenue,
   onCreateMomentDraft,
   onToast,
+  repositoryMode,
+  connected,
+  onUploadMoment,
 }: TodayBeforeViewProps) {
   const { attendance, publicCounts, venues } = snapshot;
 
@@ -35,27 +48,31 @@ export function TodayBeforeView({
         <aside className="attend-card">
           <div>
             <div className="label">오늘 참석</div>
-            <h3>{attendance.today ? '오늘 참석으로 표시했습니다' : '오늘 특새에 오셨나요?'}</h3>
+            <h3>
+              {attendance.today
+                ? "오늘 참석으로 표시했습니다"
+                : "오늘 특새에 오셨나요?"}
+            </h3>
             <p>
               {attendance.today
-                ? '참석을 변경하려면 다시 누르세요. 공식 집계가 아니라 이 기기의 예시 숫자만 바뀝니다.'
-                : '버튼을 누르면 데모 예시 숫자가 1명 단위로 바뀌고 이 기기에 저장됩니다.'}
+                ? "참석을 변경하려면 다시 누르세요. 공식 집계가 아니라 이 기기의 운영 리허설 숫자만 바뀝니다."
+                : "버튼을 누르면 데모 운영 리허설 숫자가 1명 단위로 바뀌고 이 기기에 저장됩니다."}
             </p>
           </div>
           <div className="attend-actions">
             <button
               type="button"
-              className={`primary-light ${attendance.today ? 'done' : ''}`}
+              className={`primary-light ${attendance.today ? "done" : ""}`}
               onClick={onToggleTodayAttendance}
             >
-              {attendance.today ? '✓ 오늘 참석' : '오늘 왔어요'}
+              {attendance.today ? "✓ 오늘 참석" : "오늘 왔어요"}
             </button>
             <button
               type="button"
-              className={`secondary-light ${attendance.tomorrow ? 'done' : ''}`}
+              className={`secondary-light ${attendance.tomorrow ? "done" : ""}`}
               onClick={onToggleTomorrowAttendance}
             >
-              {attendance.tomorrow ? '✓ 내일 참석 예정' : '내일도 올게요'}
+              {attendance.tomorrow ? "✓ 내일 참석 예정" : "내일도 올게요"}
             </button>
           </div>
         </aside>
@@ -71,22 +88,39 @@ export function TodayBeforeView({
         </div>
         <div className="attendance-pulse">
           <article className="pulse-main">
-            <div className="pulse-label">오늘 참석 예시</div>
-            <div className="pulse-num">{publicCounts.todayTotal.toLocaleString('ko-KR')}명</div>
-            <div className="pulse-copy">현장 + 온라인 합계 예시</div>
+            <div className="pulse-label">오늘 참석</div>
+            <div className="pulse-num">
+              {publicCounts.todayTotal.toLocaleString("ko-KR")}명
+            </div>
+            <div className="pulse-copy">현장 + 온라인 합계</div>
           </article>
           <article className="pulse-stat">
-            <div className="pulse-label">현장 참석 예시</div>
-            <div className="pulse-num">{publicCounts.onsiteTotal.toLocaleString('ko-KR')}</div>
+            <div className="pulse-label">현장 참석</div>
+            <div className="pulse-num">
+              {publicCounts.onsiteTotal.toLocaleString("ko-KR")}
+            </div>
             <div className="pulse-copy">송림/드림센터/체육관</div>
           </article>
           <article className="pulse-stat">
-            <div className="pulse-label">온라인 참석 예시</div>
-            <div className="pulse-num">{publicCounts.onlineTotal.toLocaleString('ko-KR')}</div>
+            <div className="pulse-label">온라인 참석</div>
+            <div className="pulse-num">
+              {publicCounts.onlineTotal.toLocaleString("ko-KR")}
+            </div>
             <div className="pulse-copy">온라인 참여</div>
           </article>
+          <article className="pulse-stat">
+            <div className="pulse-label">장소 미선택</div>
+            <div className="pulse-num">
+              {publicCounts.unselectedTotal.toLocaleString("ko-KR")}
+            </div>
+            <div className="pulse-copy">
+              참석 표시 후 장소를 고르지 않은 인원
+            </div>
+          </article>
         </div>
-        <p className="tomorrow-count">내일 참석 예정 예시: {publicCounts.tomorrowTotal.toLocaleString('ko-KR')}명</p>
+        <p className="tomorrow-count">
+          내일 참석 예정: {publicCounts.tomorrowTotal.toLocaleString("ko-KR")}명
+        </p>
       </section>
 
       <section>
@@ -101,11 +135,11 @@ export function TodayBeforeView({
           {venues.map((venue) => {
             const presentation = deriveVenuePresentation(venue);
             const selected = attendance.selectedVenue === venue.id;
-            const selectable = venue.state !== 'full';
+            const selectable = venue.state !== "full";
             return (
               <article
                 key={venue.id}
-                className={`venue ${presentation.effectiveState === 'recommended' ? 'recommended' : ''}`}
+                className={`venue ${presentation.effectiveState === "recommended" ? "recommended" : ""}`}
               >
                 <div>
                   <div className="venue-top">
@@ -118,20 +152,25 @@ export function TodayBeforeView({
                     </span>
                   </div>
                   {presentation.stale && (
-                    <p className="stale-copy">마지막 업데이트가 10분을 넘어 확인 중으로 표시합니다.</p>
+                    <p className="stale-copy">
+                      마지막 업데이트가 10분을 넘어 확인 중으로 표시합니다.
+                    </p>
                   )}
                 </div>
                 <div>
                   <p className="meta">
-                    {formatUpdatedLabel(venue.updatedAt)} · {venue.updatedBy} 확인
+                    {formatUpdatedLabel(venue.updatedAt)} · {venue.updatedBy}{" "}
+                    확인
                   </p>
                   {selectable && (
                     <button
                       type="button"
-                      className={`pick ${selected ? 'selected' : ''}`}
+                      className={`pick ${selected ? "selected" : ""}`}
                       onClick={() => onSelectVenue(venue.id)}
                     >
-                      {selected ? '✓ 참석 장소로 선택됨' : '여기서 예배드릴게요'}
+                      {selected
+                        ? "✓ 참석 장소로 선택됨"
+                        : "여기서 예배드릴게요"}
                     </button>
                   )}
                 </div>
@@ -156,13 +195,23 @@ export function TodayBeforeView({
         <article className="notice online">
           <h3>{config.onlineNoticeTitle}</h3>
           <p className="desc">{config.onlineNoticeBody}</p>
-          <button type="button" className="text-link" onClick={() => onSelectVenue('online')}>
+          <button
+            type="button"
+            className="text-link"
+            onClick={() => onSelectVenue("online")}
+          >
             온라인으로 예배드릴게요
           </button>
         </article>
       </section>
 
-      <MomentsPanel onDraftCreated={onCreateMomentDraft} onToast={onToast} />
+      <MomentsPanel
+        repositoryMode={repositoryMode}
+        connected={connected}
+        onDraftCreated={onCreateMomentDraft}
+        onUpload={onUploadMoment}
+        onToast={onToast}
+      />
     </>
   );
 }

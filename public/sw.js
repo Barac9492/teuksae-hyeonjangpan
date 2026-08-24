@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'teuksae-app-v1';
+const CACHE_VERSION = 'teuksae-app-v2';
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const ASSET_CACHE = `${CACHE_VERSION}-assets`;
 
@@ -43,6 +43,9 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(request.url);
   const sameOrigin = url.origin === self.location.origin;
+  if (url.hostname.endsWith('.supabase.co')) {
+    return;
+  }
   if (!sameOrigin) {
     return;
   }

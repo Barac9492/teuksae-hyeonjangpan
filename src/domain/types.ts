@@ -1,12 +1,12 @@
-export type VenueId = 'songrim' | 'dream' | 'gym' | 'online';
+export type VenueId = "songrim" | "dream" | "gym" | "online";
 
 export type VenueState =
-  | 'preparing'
-  | 'open'
-  | 'recommended'
-  | 'busy'
-  | 'full'
-  | 'checking';
+  | "preparing"
+  | "open"
+  | "recommended"
+  | "busy"
+  | "full"
+  | "checking";
 
 export interface VenueStatus {
   id: VenueId;
@@ -32,7 +32,7 @@ export interface PersonalPractice {
   prayerNote: string;
 }
 
-export type MomentDraftStatus = 'pending_review';
+export type MomentDraftStatus = "pending_review";
 
 export interface MomentDraft {
   id: string;
@@ -56,6 +56,7 @@ export interface PublicCounts {
   todayTotal: number;
   onsiteTotal: number;
   onlineTotal: number;
+  unselectedTotal: number;
   tomorrowTotal: number;
 }
 
