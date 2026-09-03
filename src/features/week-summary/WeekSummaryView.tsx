@@ -4,9 +4,10 @@ import type { AppSnapshot } from '../../domain/types';
 interface WeekSummaryViewProps {
   config: AppConfig;
   snapshot: AppSnapshot;
+  shareCount?: number;
 }
 
-export function WeekSummaryView({ config, snapshot }: WeekSummaryViewProps) {
+export function WeekSummaryView({ config, snapshot, shareCount = 0 }: WeekSummaryViewProps) {
   const attendanceCount = snapshot.attendance.attendanceDayIndexes.length;
   const practiceCount = snapshot.practice.completedDayIndexes.length;
 
@@ -52,6 +53,7 @@ export function WeekSummaryView({ config, snapshot }: WeekSummaryViewProps) {
           <hr />
           <ul>
             <li>일새 실천 기록 {practiceCount}/6</li>
+            <li>우리 나눔 기록 {shareCount}건 (카풀·간식·사진·감사)</li>
             <li>개인 기록은 이 기기에만 저장</li>
             <li>공식 안내판이 항상 우선</li>
           </ul>

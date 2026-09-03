@@ -7,6 +7,7 @@ interface BottomNavigationProps {
 
 const NAV_ITEMS: Array<{ id: AppView; label: string; icon: string }> = [
   { id: 'today', label: '오늘', icon: '⌂' },
+  { id: 'we', label: '우리', icon: '◎' },
   { id: 'daily', label: '일새', icon: '○' },
   { id: 'week', label: '주간', icon: '▦' },
   { id: 'operator', label: '운영', icon: '⚙' },

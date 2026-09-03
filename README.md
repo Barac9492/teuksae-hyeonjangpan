@@ -17,7 +17,11 @@ node --check public/sw.js
 
 ## 데이터 경계
 - 공유: 집계 참석 수, 장소 상태와 불변 로그, 비공개 검수 대기 미디어
-- 기기 전용: `wordNote`, `prayerNote`, 선택한 실천, 실천 완료 기록
-- 금지: 좌석 수, 리더보드, 연속 출석, 공개 피드/기도/간증, QR 출석, AI 설교 요약
+- 기기 전용: `wordNote`, `prayerNote`, 선택한 실천, 실천 완료 기록, 우리 나눔 기록(카풀·간식·사진·감사 메모)
+- 금지: 좌석 수, 리더보드, 연속 출석, 공개 피드/기도/간증, QR 출석, AI 설교 요약, 오픈 카풀 매칭
+
+## 우리 탭
+
+`우리` 탭은 분당**우리**교회의 "우리"를 강조한다. community·communion·compassion·communication(모두 라틴어 com-, "함께")을 축으로 카풀, 간식, 사진, 감사를 다룬다. 카풀과 간식은 앱이 사람을 매칭하지 않고 다락방 카톡에 붙여넣을 문장만 만든다. 사진은 기존 검수 대기 흐름을 그대로 쓴다. 나눔 기록은 기기에만 저장하며 순위·연속 기록·서버 전송이 없다.
 
 설정은 [운영 런북](docs/RUNBOOK.md), 보안 계약은 [백엔드 계약](docs/BACKEND-CONTRACT.md)을 참고하세요. 프로덕션 본문 제어는 `public/app-config.json`의 `officialApproved`, active event의 `official_approved`, `VITE_APP_MODE=production`이 모두 충족될 때만 공식 안내가 됩니다.

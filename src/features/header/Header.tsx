@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import type { RepositoryStatus } from "../../data/remote/types";
 
-export type AppView = "today" | "daily" | "week" | "operator";
+export type AppView = "today" | "we" | "daily" | "week" | "operator";
 
 interface HeaderProps {
   appName: string;
@@ -16,6 +16,7 @@ interface HeaderProps {
 
 const VIEWS: Array<{ id: AppView; label: string }> = [
   { id: "today", label: "오늘" },
+  { id: "we", label: "우리" },
   { id: "daily", label: "일새" },
   { id: "week", label: "주간" },
   { id: "operator", label: "운영" },

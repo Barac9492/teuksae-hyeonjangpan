@@ -5,7 +5,6 @@ import {
   VENUE_STATE_LABELS,
 } from "../../domain/venue";
 import type { AppSnapshot, VenueId } from "../../domain/types";
-import { MomentsPanel } from "../moments/MomentsPanel";
 
 interface TodayBeforeViewProps {
   config: AppConfig;
@@ -13,14 +12,7 @@ interface TodayBeforeViewProps {
   onToggleTodayAttendance: () => void;
   onToggleTomorrowAttendance: () => void;
   onSelectVenue: (venueId: VenueId) => void;
-  onCreateMomentDraft: (draft: AppSnapshot["moments"][number]) => void;
-  onToast: (message: string) => void;
   repositoryMode: "local" | "remote";
-  connected: boolean;
-  onUploadMoment?: (
-    file: File,
-    draft: AppSnapshot["moments"][number],
-  ) => Promise<void>;
 }
 
 export function TodayBeforeView({
@@ -29,11 +21,7 @@ export function TodayBeforeView({
   onToggleTodayAttendance,
   onToggleTomorrowAttendance,
   onSelectVenue,
-  onCreateMomentDraft,
-  onToast,
   repositoryMode,
-  connected,
-  onUploadMoment,
 }: TodayBeforeViewProps) {
   const { attendance, publicCounts, venues } = snapshot;
 
@@ -208,14 +196,6 @@ export function TodayBeforeView({
           </button>
         </article>
       </section>
-
-      <MomentsPanel
-        repositoryMode={repositoryMode}
-        connected={connected}
-        onDraftCreated={onCreateMomentDraft}
-        onUpload={onUploadMoment}
-        onToast={onToast}
-      />
     </>
   );
 }

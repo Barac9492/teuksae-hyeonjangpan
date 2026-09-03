@@ -7,6 +7,8 @@ import {
 } from "./validation";
 
 interface MomentsPanelProps {
+  heading?: string;
+  intro?: string;
   repositoryMode: "local" | "remote";
   connected: boolean;
   onDraftCreated: (draft: MomentDraft) => void;
@@ -29,6 +31,8 @@ function generateId(): string {
 }
 
 export function MomentsPanel({
+  heading = "오늘 특새 영상",
+  intro = "촬영 파일은 자동 공개되지 않고 운영팀 검수 대기 상태로만 기록됩니다.",
   repositoryMode,
   connected,
   onDraftCreated,
@@ -117,10 +121,8 @@ export function MomentsPanel({
     <section className="moment-wrap" aria-labelledby="moments-heading">
       <div className="moment-head">
         <div>
-          <h3 id="moments-heading">오늘 특새 영상</h3>
-          <p>
-            촬영 파일은 자동 공개되지 않고 운영팀 검수 대기 상태로만 기록됩니다.
-          </p>
+          <h3 id="moments-heading">{heading}</h3>
+          <p>{intro}</p>
         </div>
         <button
           type="button"
