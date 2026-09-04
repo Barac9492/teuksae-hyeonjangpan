@@ -522,9 +522,11 @@
   border-radius: 999px;
   background: #fff;
   color: var(--ink);
-  padding: 0 14px;
-  font-size: 12px;
+  padding: 0 18px;
+  font-size: 14px;
   font-weight: 800;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .moments {
@@ -1159,6 +1161,15 @@
     display: none;
   }
 
+  .moment-head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .camera-btn {
+    width: 100%;
+  }
+
   .moments {
     display: flex;
     overflow-x: auto;
@@ -1193,8 +1204,7 @@
     z-index: 55;
     display: flex;
     border-top: 1px solid var(--line);
-    background: rgba(255, 253, 249, 0.96);
-    backdrop-filter: blur(14px);
+    background: var(--card);
     padding: 7px 8px calc(7px + env(safe-area-inset-bottom));
   }
 
@@ -1204,7 +1214,8 @@
     border: 0;
     background: transparent;
     color: var(--muted);
-    font-size: 10px;
+    font-size: 12px;
+    font-weight: 600;
   }
 
   .bottom-nav button::before {
@@ -1220,154 +1231,55 @@
   }
 }
 
+
 /* ---------- 우리 (community) ---------- */
 
 .we-section {
-  margin-bottom: 28px;
-  scroll-margin-top: 90px;
+  margin-bottom: 20px;
+  scroll-margin-top: 84px;
 }
 
-.we-fineprint {
-  margin: 10px 0 0;
-  font-size: 12px;
-  color: var(--muted);
+.we-top {
+  margin-bottom: 20px;
 }
 
-.we-legend {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 16px;
-  display: flex;
-  gap: 16px;
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.78);
-}
-
-.we-legend li {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.we-legend-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 999px;
-  display: inline-block;
-}
-
-.we-legend-dot.onsite {
-  background: #e9a27f;
-}
-
-.we-legend-dot.online {
-  background: #7fc9a4;
-}
-
-.we-legend-dot.you {
-  background: #fff;
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.25);
-}
-
-.we-lit {
-  border-top: 1px solid rgba(255, 255, 255, 0.15);
-  padding-top: 12px;
-}
-
-.com-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 12px;
-}
-
-.com-card {
-  border: 1px solid var(--line);
-  border-radius: var(--radius-md, 16px);
-  background: var(--card);
-  overflow: hidden;
-  transition: box-shadow 0.25s, transform 0.25s;
-}
-
-.com-card.open {
-  box-shadow: var(--shadow);
-  transform: translateY(-2px);
-  border-color: var(--terra);
-}
-
-.com-toggle {
-  width: 100%;
-  border: 0;
-  background: transparent;
-  text-align: left;
-  padding: 18px 18px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.com-word {
+.we-top h2 {
+  margin: 4px 0 8px;
   font-family: Georgia, 'Nanum Myeongjo', serif;
-  font-size: 20px;
-  letter-spacing: 0.01em;
-  display: flex;
-  align-items: baseline;
-  gap: 2px;
+  font-weight: 400;
+  font-size: 28px;
+  line-height: 1.2;
 }
 
-.com-word em {
-  font-style: normal;
-  color: var(--terra);
-  font-weight: 700;
-}
-
-.com-word span {
-  color: var(--muted);
-}
-
-.com-korean {
+.we-top-lead {
+  margin: 0 0 14px;
   font-size: 15px;
-  font-weight: 800;
-}
-
-.com-tagline {
-  font-size: 12px;
+  line-height: 1.55;
   color: var(--muted);
 }
 
-.com-body {
-  padding: 0 18px 18px;
-  font-size: 13px;
-  line-height: 1.6;
-  animation: com-open 0.35s ease-out both;
+.we-jump {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
 }
 
-.com-body p {
-  margin: 0 0 10px;
-}
-
-.com-origin {
-  padding: 10px 12px;
-  border-radius: 10px;
-  background: var(--gold-soft);
-  color: var(--gold);
-  font-size: 12px;
-}
-
-@keyframes com-open {
-  from {
-    opacity: 0;
-    transform: translateY(-4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.we-jump button {
+  min-height: 60px;
+  border: 0;
+  border-radius: var(--radius-md, 16px);
+  background: var(--ink);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  padding: 0 12px;
+  word-break: keep-all;
 }
 
 .share-block {
   border: 1px solid var(--line);
   border-radius: var(--radius-lg, 22px);
-  padding: 24px;
+  padding: 22px;
   background: var(--card);
 }
 
@@ -1388,9 +1300,9 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
-  color: var(--muted);
+  color: var(--ink);
 }
 
 .share-form input[type='text'],
@@ -1398,12 +1310,12 @@
 .share-form input[type='number'],
 .share-form select,
 .share-form textarea {
-  min-height: 44px;
+  min-height: 48px;
   border: 1px solid var(--line);
   border-radius: 10px;
   padding: 10px 12px;
   background: #fff;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 400;
   color: var(--ink);
 }
@@ -1432,9 +1344,9 @@
   border-radius: 999px;
   background: transparent;
   color: var(--muted);
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 700;
-  min-height: 40px;
+  min-height: var(--min-touch);
 }
 
 .role-switch button.active {
@@ -1452,30 +1364,37 @@
 }
 
 .allergen-set legend {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
-  color: var(--muted);
-  margin-bottom: 6px;
+  color: var(--ink);
+  margin-bottom: 8px;
+  line-height: 1.45;
 }
 
 .chip-check {
   flex-direction: row !important;
   align-items: center;
-  gap: 6px !important;
-  min-height: 36px;
-  padding: 0 12px;
+  gap: 8px !important;
+  min-height: var(--min-touch);
+  padding: 0 14px;
   border: 1px solid var(--line);
   border-radius: 999px;
   background: #fff;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600 !important;
   color: var(--ink) !important;
+  cursor: pointer;
+}
+
+.chip-check input {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--terra);
 }
 
 .chip-check:has(input:checked) {
   background: var(--terra-soft);
   border-color: var(--terra);
-  color: var(--terra) !important;
 }
 
 .share-preview {
@@ -1489,10 +1408,10 @@
 
 .share-preview .label {
   margin: 0;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 800;
-  letter-spacing: 0.08em;
-  color: var(--muted);
+  letter-spacing: 0.04em;
+  color: var(--ink);
 }
 
 .share-preview pre {
@@ -1505,7 +1424,7 @@
   word-break: keep-all;
   overflow-wrap: anywhere;
   font: inherit;
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.6;
   flex: 1;
 }
@@ -1516,708 +1435,61 @@
   flex-wrap: wrap;
 }
 
-.share-actions .ghost {
-  border: 1px solid var(--line);
+.ghost {
+  border: 1px solid var(--ink);
   border-radius: 999px;
   background: transparent;
   padding: 0 16px;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--ink);
+  min-height: var(--min-touch);
 }
 
-.share-tips {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px 20px;
-}
-
-.share-tips li {
-  display: grid;
-  grid-template-columns: 76px 1fr;
-  gap: 8px;
-  font-size: 13px;
-  line-height: 1.55;
-  padding: 8px 0;
-  border-top: 1px solid var(--line);
-}
-
-.share-tips b {
-  color: var(--terra);
-}
-
-.journal-list {
-  list-style: none;
-  margin: 0 0 16px;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.journal-item {
-  display: grid;
-  grid-template-columns: 52px minmax(0, 1fr) auto auto;
-  gap: 10px;
-  align-items: center;
-  padding: 10px 14px;
-  border-radius: 12px;
-  background: var(--card);
+.share-details {
   border: 1px solid var(--line);
-  font-size: 13px;
+  border-radius: var(--radius-md, 16px);
+  padding: 0 16px;
+  margin-bottom: 16px;
+  background: var(--card);
 }
 
-.journal-kind {
+.share-details summary {
+  cursor: pointer;
+  padding: 14px 0;
   font-weight: 800;
-  font-size: 12px;
-  border-radius: 999px;
-  text-align: center;
-  padding: 4px 0;
-}
-
-.journal-item.carpool .journal-kind {
-  background: var(--terra-soft);
-  color: var(--terra);
-}
-
-.journal-item.snack .journal-kind {
-  background: var(--gold-soft);
-  color: var(--gold);
-}
-
-.journal-item.photo .journal-kind {
-  background: var(--forest-soft);
-  color: var(--forest);
-}
-
-.journal-item.thanks .journal-kind {
-  background: var(--red-soft);
-  color: var(--red);
-}
-
-.journal-note {
-  overflow-wrap: anywhere;
-}
-
-.journal-meta {
-  font-size: 11px;
-  color: var(--muted);
-  white-space: nowrap;
-}
-
-.journal-remove {
-  border: 0;
-  background: transparent;
-  color: var(--muted);
-  font-size: 12px;
-  min-height: 32px;
-  text-decoration: underline;
-}
-
-.we-boundary {
-  margin: 0;
-  padding: 14px 18px;
-  border-radius: 12px;
-  background: var(--cream);
-  font-size: 12px;
-  color: var(--muted);
-  list-style: disc inside;
-}
-
-.we-boundary li {
-  padding: 2px 0;
-}
-
-@media (max-width: 900px) {
-  .we-circle-card,
-  .share-grid,
-  .share-tips {
-    grid-template-columns: 1fr;
-  }
-
-  .com-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 760px) {
-
-  .com-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .share-block {
-    padding: 18px;
-  }
-
-  .journal-item {
-    grid-template-columns: 52px minmax(0, 1fr);
-  }
-
-  .journal-meta,
-  .journal-remove {
-    grid-column: 2;
-    justify-self: start;
-  }
-
-  .bottom-nav button {
-    font-size: 9.5px;
-  }
-}
-
-/* ---------- 우리: 나+너=우리 / 새벽 하늘 ---------- */
-
-.merge-hero {
-  position: relative;
-  overflow: hidden;
-  border-radius: var(--radius-lg, 22px);
-  padding: 28px 32px 32px;
-  margin-bottom: 20px;
-  color: #fff;
-  box-shadow: var(--shadow);
-  transition: background 0.8s ease;
-  min-height: 420px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.merge-hero.ink-dark {
-  color: var(--ink);
-}
-
-.merge-sun {
-  position: absolute;
-  left: 50%;
-  bottom: -160px;
-  width: 520px;
-  height: 520px;
-  transform: translateX(-50%);
-  border-radius: 999px;
-  background: radial-gradient(circle, rgba(255, 220, 160, 0.75), rgba(255, 220, 160, 0) 65%);
-  pointer-events: none;
-  transition: opacity 0.8s ease;
-}
-
-.merge-time {
-  position: relative;
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-  font-size: 12px;
-  opacity: 0.85;
-}
-
-.merge-clock {
-  font-family: Georgia, 'Nanum Myeongjo', serif;
-  font-size: 22px;
-  letter-spacing: 0.04em;
-}
-
-.merge-stage {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 28px;
-  min-height: 150px;
-  touch-action: none;
-}
-
-.merge-ball {
-  width: 104px;
-  height: 104px;
-  border-radius: 999px;
-  display: grid;
-  place-items: center;
-  font-family: Georgia, 'Nanum Myeongjo', serif;
-  font-size: 40px;
-  border: 0;
-  color: inherit;
-  user-select: none;
-  -webkit-user-select: none;
-}
-
-.merge-me {
-  background: rgba(255, 255, 255, 0.16);
-  border: 1.5px solid rgba(255, 255, 255, 0.7);
-  cursor: grab;
-  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
-  animation: merge-nudge 2.6s ease-in-out infinite;
-  z-index: 2;
-}
-
-.merge-me.dragging {
-  cursor: grabbing;
-  transition: none;
-  animation: none;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
-}
-
-.ink-dark .merge-me {
-  background: rgba(39, 35, 31, 0.08);
-  border-color: rgba(39, 35, 31, 0.6);
-}
-
-.merge-you {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1.5px dashed rgba(255, 255, 255, 0.55);
-}
-
-.ink-dark .merge-you {
-  background: rgba(39, 35, 31, 0.05);
-  border-color: rgba(39, 35, 31, 0.45);
-}
-
-.merge-arrow {
-  font-size: 22px;
-  opacity: 0.55;
-}
-
-@keyframes merge-nudge {
-  0%,
-  100% {
-    translate: 0 0;
-  }
-  50% {
-    translate: 10px 0;
-  }
-}
-
-.merge-we {
-  position: relative;
-  display: grid;
-  place-items: center;
-  width: 190px;
-  height: 150px;
-}
-
-.merge-we-word {
-  font-family: Georgia, 'Nanum Myeongjo', serif;
-  font-size: 84px;
-  line-height: 1;
-  animation: merge-pop 0.7s cubic-bezier(0.2, 0.9, 0.2, 1.2) both;
-}
-
-@keyframes merge-pop {
-  from {
-    transform: scale(0.4);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-.merge-burst {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
-.merge-burst i {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 3px;
-  height: 3px;
-  margin: -1.5px;
-  border-radius: 999px;
-  background: currentColor;
-  animation: merge-ray 0.9s ease-out both;
-}
-
-.merge-burst i::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: -70px;
-  width: 3px;
-  height: 22px;
-  border-radius: 3px;
-  background: currentColor;
-}
-
-@keyframes merge-ray {
-  from {
-    opacity: 0.9;
-    scale: 0.2;
-  }
-  to {
-    opacity: 0;
-    scale: 1.6;
-  }
-}
-
-.merge-copy {
-  position: relative;
-  max-width: 640px;
-}
-
-.merge-copy .eyebrow {
-  color: inherit;
-  opacity: 0.7;
-}
-
-.merge-title {
-  margin: 4px 0 10px;
-  font-family: Georgia, 'Nanum Myeongjo', serif;
-  font-weight: 400;
-  font-size: 38px;
-  line-height: 1.15;
-  letter-spacing: -0.02em;
-}
-
-.merge-title mark {
-  background: transparent;
-  color: inherit;
-  text-decoration: underline;
-  text-decoration-thickness: 6px;
-  text-underline-offset: 6px;
-  text-decoration-color: rgba(233, 162, 127, 0.9);
-}
-
-.merge-lead {
-  margin: 0 0 10px;
   font-size: 15px;
-  line-height: 1.65;
-  opacity: 0.92;
-}
-
-.merge-phase-line {
-  margin: 0;
-  font-size: 13px;
-  opacity: 0.75;
-  font-style: italic;
-}
-
-.dawn-strip {
-  border: 1px solid var(--line);
-  border-radius: var(--radius-lg, 22px);
-  padding: 20px 22px;
-  background: var(--card);
-}
-
-.dawn-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  gap: 16px;
-  flex-wrap: wrap;
-  margin-bottom: 12px;
-}
-
-.dawn-head h2 {
-  margin: 4px 0 0;
-  font-family: Georgia, 'Nanum Myeongjo', serif;
-  font-weight: 400;
-  font-size: 24px;
-}
-
-.dawn-head h2 b {
-  color: var(--terra);
-}
-
-.dawn-scrub {
-  display: flex;
-  align-items: flex-end;
-  gap: 10px;
-}
-
-.dawn-scrub label {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--muted);
-  min-width: 220px;
-}
-
-.dawn-scrub label span {
-  font-family: Georgia, serif;
-  font-size: 14px;
-  color: var(--ink);
-}
-
-.dawn-scrub input[type='range'] {
-  width: 100%;
-  accent-color: var(--terra);
-}
-
-.dawn-phases {
   list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(9, minmax(0, 1fr));
-  gap: 6px;
-}
-
-.dawn-phases li {
+  min-height: var(--min-touch);
   display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 10px 10px 12px;
-  border-radius: 12px;
-  border: 1px solid transparent;
-  font-size: 11px;
-  color: var(--muted);
-  min-width: 0;
-}
-
-.dawn-phases li.now {
-  border-color: var(--terra);
-  background: var(--terra-soft);
-  color: var(--ink);
-}
-
-.dawn-time {
-  font-family: Georgia, serif;
-  font-size: 12px;
-}
-
-.dawn-label {
-  font-weight: 800;
-  font-size: 12px;
-}
-
-.dawn-line {
-  line-height: 1.45;
-  display: none;
-}
-
-.dawn-phases li.now .dawn-line {
-  display: block;
-}
-
-/* ---------- 사람으로 쓴 글자 ---------- */
-
-.glyph-card {
-  display: grid;
-  grid-template-columns: minmax(280px, 1.1fr) minmax(0, 1fr);
-  gap: 24px;
   align-items: center;
-  padding: 24px;
-  border-radius: var(--radius-lg, 22px);
-  background: var(--ink);
-  color: #fff;
-  box-shadow: var(--shadow);
 }
 
-.glyph-svg {
-  width: 100%;
-  height: auto;
-  display: block;
+.share-details summary::before {
+  content: '+';
+  display: inline-block;
+  width: 22px;
+  color: var(--terra);
+  font-family: Georgia, serif;
 }
 
-.glyph-dot {
-  opacity: 0;
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: glyph-in 0.6s ease-out both;
-  animation-delay: calc(var(--o, 0) * 9ms);
+.share-details[open] summary::before {
+  content: '–';
 }
-
-.glyph-dot.onsite {
-  fill: #e9a27f;
-}
-
-.glyph-dot.online {
-  fill: #7fc9a4;
-}
-
-.glyph-dot.you {
-  fill: #fff;
-  animation:
-    glyph-in 0.6s ease-out both,
-    we-pulse 2.4s ease-in-out 1.6s infinite;
-}
-
-.glyph-dot.you.online {
-  fill: #c8f1dc;
-}
-
-.glyph-dot.you.empty {
-  fill: transparent;
-  stroke: rgba(255, 255, 255, 0.75);
-  stroke-width: 1.5;
-  stroke-dasharray: 3 3;
-  animation: glyph-in 0.6s ease-out both;
-}
-
-.glyph-halo {
-  fill: none;
-  stroke: rgba(255, 255, 255, 0.55);
-  stroke-width: 1.2;
-  animation: we-halo 2.4s ease-out infinite;
-  transform-box: fill-box;
-  transform-origin: center;
-}
-
-.glyph-you-label {
-  text-anchor: middle;
-  fill: #fff;
-  font-size: 10px;
-  font-weight: 700;
-}
-
-@keyframes glyph-in {
-  from {
-    opacity: 0;
-    transform: scale(0.2);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@keyframes we-pulse {
-  0%,
-  100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.35);
-  }
-}
-
-@keyframes we-halo {
-  0% {
-    transform: scale(0.6);
-    opacity: 0.9;
-  }
-  100% {
-    transform: scale(1.8);
-    opacity: 0;
-  }
-}
-
-.glyph-copy .eyebrow {
-  color: rgba(255, 255, 255, 0.6);
-}
-
-.glyph-copy h3 {
-  margin: 6px 0 10px;
-  font-family: Georgia, 'Nanum Myeongjo', serif;
-  font-weight: 400;
-  font-size: 26px;
-  line-height: 1.25;
-}
-
-.glyph-copy p {
-  margin: 0 0 12px;
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.78);
-  line-height: 1.6;
-}
-
-.glyph-cta {
-  background: #fff;
-  color: var(--ink);
-}
-
-/* ---------- 시와 카드 ---------- */
-
-.poem-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
-  gap: 20px;
-}
-
-.poem {
-  margin: 0;
-  padding: 28px 30px;
-  border-radius: var(--radius-lg, 22px);
-  background: var(--cream);
-  border-left: 4px solid var(--terra);
-}
-
-.poem p {
-  margin: 0 0 12px;
-  font-family: Georgia, 'Nanum Myeongjo', serif;
-  font-size: 19px;
-  line-height: 1.6;
-  word-break: keep-all;
-  animation: com-open 0.6s ease-out both;
-}
-
-.poem p:nth-child(2) {
-  animation-delay: 0.15s;
-}
-
-.poem p:nth-child(3) {
-  animation-delay: 0.3s;
-}
-
-.poem p:nth-child(4) {
-  animation-delay: 0.45s;
-}
-
-.poem p:nth-child(5) {
-  animation-delay: 0.6s;
-}
-
-.poem p:last-child {
-  margin-bottom: 0;
-}
-
-.card-maker {
-  border: 1px solid var(--line);
-  border-radius: var(--radius-lg, 22px);
-  padding: 20px;
-  background: var(--card);
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.card-maker h3 {
-  margin: 0;
-  font-family: Georgia, 'Nanum Myeongjo', serif;
-  font-weight: 400;
-  font-size: 20px;
-}
-
-.card-maker p {
-  margin: 0;
-  font-size: 13px;
-  color: var(--muted);
-  line-height: 1.55;
-}
-
-.card-canvas {
-  display: none;
-  width: 100%;
-  max-width: 260px;
-  height: auto;
-  border-radius: 12px;
-  border: 1px solid var(--line);
-  align-self: center;
-}
-
-.card-canvas.ready {
-  display: block;
-  animation: com-open 0.5s ease-out both;
-}
-
-.share-actions .ghost:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-
-/* ---------- 잠 지키기 ---------- */
 
 .sleep-guard {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 20px;
-  margin-bottom: 16px;
+  padding-bottom: 16px;
+}
+
+.sleep-hint {
+  margin: 0;
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.55;
+  align-self: center;
 }
 
 .sleep-result {
@@ -2233,7 +1505,7 @@
 
 .sleep-result.short {
   background: var(--gold-soft);
-  color: var(--gold);
+  color: #6f4a12;
 }
 
 .sleep-result.danger {
@@ -2252,8 +1524,7 @@
 }
 
 .sleep-nums small {
-  font-size: 11px;
-  opacity: 0.8;
+  font-size: 13px;
 }
 
 .sleep-nums b {
@@ -2263,313 +1534,261 @@
 
 .sleep-result p {
   margin: 0;
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.55;
 }
 
-.share-details {
-  border: 1px solid var(--line);
-  border-radius: var(--radius-md, 16px);
-  padding: 0 16px;
-  margin-bottom: 16px;
-  background: var(--card);
-}
-
-.share-details summary {
-  cursor: pointer;
-  padding: 14px 0;
-  font-weight: 800;
-  font-size: 14px;
+.share-tips {
   list-style: none;
-}
-
-.share-details summary::before {
-  content: '+';
-  display: inline-block;
-  width: 22px;
-  color: var(--terra);
-  font-family: Georgia, serif;
-}
-
-.share-details[open] summary::before {
-  content: '–';
-}
-
-.share-details .share-grid {
-  padding-bottom: 16px;
-  margin-bottom: 0;
-}
-
-/* ---------- 떡 떼기 ---------- */
-
-.bread {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  margin-bottom: 16px;
-  flex-wrap: wrap;
-}
-
-.bread-btn {
-  border: 0;
-  background: var(--cream);
-  border-radius: var(--radius-lg, 22px);
-  padding: 18px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  min-width: 180px;
-}
-
-.bread-grid {
-  --n: 1;
-  display: grid;
-  grid-template-columns: repeat(var(--n), 1fr);
-  gap: 3px;
-  width: 132px;
-  height: 132px;
-}
-
-.bread-grid i {
-  display: block;
-  background: linear-gradient(180deg, #fbf3e6, #ecdcc2);
-  border: 1px solid #d9c6a6;
-  border-radius: 8px;
-  animation: bread-pop 0.35s cubic-bezier(0.2, 0.9, 0.2, 1.3) both;
-}
-
-@keyframes bread-pop {
-  from {
-    transform: scale(0.6);
-    opacity: 0.3;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-.bread-count {
-  font-family: Georgia, 'Nanum Myeongjo', serif;
-  font-size: 18px;
-}
-
-.bread-hint {
   margin: 0;
-  font-size: 14px;
-  color: var(--muted);
-  max-width: 320px;
-  line-height: 1.55;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px 20px;
 }
 
-/* ---------- 나란히 ---------- */
+.share-tips li {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 8px;
+  font-size: 14px;
+  line-height: 1.55;
+  padding: 8px 0;
+  border-top: 1px solid var(--line);
+}
 
-.side-launch {
-  display: flex;
+.share-tips b {
+  color: var(--terra);
+}
+
+.glyph-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 1fr);
+  gap: 24px;
   align-items: center;
-  justify-content: space-between;
-  gap: 20px;
   padding: 24px;
   border-radius: var(--radius-lg, 22px);
-  background: var(--gold-soft);
-  border: 1px solid #e6d4b0;
+  background: var(--ink);
+  color: #fff;
 }
 
-.side-launch h2 {
-  margin: 4px 0 8px;
+.glyph-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.glyph-dot {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: glyph-in 0.6s ease-out both;
+  animation-delay: calc(var(--o, 0) * 8ms);
+}
+
+.glyph-dot.onsite {
+  fill: #e9a27f;
+}
+
+.glyph-dot.online {
+  fill: #7fc9a4;
+}
+
+@keyframes glyph-in {
+  from {
+    opacity: 0;
+    transform: scale(0.2);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.glyph-copy .eyebrow {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.glyph-copy h3 {
+  margin: 6px 0 10px;
   font-family: Georgia, 'Nanum Myeongjo', serif;
   font-weight: 400;
   font-size: 24px;
+  line-height: 1.3;
 }
 
-.side-launch p {
-  margin: 0;
-  font-size: 14px;
-  color: var(--muted);
-  max-width: 560px;
+.glyph-copy p {
+  margin: 0 0 12px;
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.85);
   line-height: 1.6;
 }
 
-.side-launch .solid {
-  white-space: nowrap;
+.glyph-notice {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: #ffd28a;
+  color: var(--ink) !important;
+  font-weight: 800;
+  font-size: 14px !important;
 }
 
-.side-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 80;
-  color: #fff;
-  display: flex;
-  flex-direction: column;
-  padding: 20px;
-  overflow: auto;
-}
-
-.side-overlay.ink-dark {
+.glyph-cta {
+  background: #fff;
   color: var(--ink);
 }
 
-.side-close {
-  align-self: flex-end;
-  border: 1px solid currentColor;
+.glyph-fine {
+  margin-top: 10px !important;
+  font-size: 14px !important;
+}
+
+.card-canvas {
+  display: none;
+}
+
+.we-legend {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 16px;
+  display: flex;
+  gap: 16px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.we-legend li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.we-legend-dot {
+  width: 12px;
+  height: 12px;
   border-radius: 999px;
-  background: transparent;
-  color: inherit;
-  padding: 0 16px;
-  font-size: 13px;
+  display: inline-block;
 }
 
-.side-pick {
-  margin: auto;
-  max-width: 560px;
-  text-align: center;
+.we-legend-dot.onsite {
+  background: #e9a27f;
 }
 
-.side-pick .eyebrow {
-  color: inherit;
-  opacity: 0.7;
+.we-legend-dot.online {
+  background: #7fc9a4;
 }
 
-.side-pick h2 {
-  font-family: Georgia, 'Nanum Myeongjo', serif;
-  font-weight: 400;
-  font-size: 28px;
-  margin: 6px 0 10px;
+.journal-list {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.side-pick p {
-  opacity: 0.85;
+.journal-item {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr) auto auto;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 14px;
+  border-radius: 12px;
+  background: var(--card);
+  border: 1px solid var(--line);
   font-size: 15px;
 }
 
-.side-chars {
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 8px;
-  margin-top: 20px;
+.journal-kind {
+  font-weight: 800;
+  font-size: 13px;
+  border-radius: 999px;
+  text-align: center;
+  padding: 4px 0;
 }
 
-.side-char-btn {
-  border: 1.5px solid currentColor;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.08);
-  color: inherit;
-  padding: 14px 0 10px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
+.journal-item.carpool .journal-kind {
+  background: var(--terra-soft);
+  color: var(--terra);
 }
 
-.side-char-btn span {
-  font-family: Georgia, 'Nanum Myeongjo', serif;
-  font-size: 32px;
-  line-height: 1;
+.journal-item.snack .journal-kind {
+  background: var(--gold-soft);
+  color: #6f4a12;
 }
 
-.side-char-btn small {
-  font-size: 10px;
-  opacity: 0.7;
+.journal-item.photo .journal-kind {
+  background: var(--forest-soft);
+  color: var(--forest);
 }
 
-.side-stage {
-  flex: 1;
+.journal-item.thanks .journal-kind {
+  background: var(--red-soft);
+  color: var(--red);
+}
+
+.journal-note {
+  overflow-wrap: anywhere;
+}
+
+.journal-meta {
+  font-size: 13px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.journal-remove {
   border: 0;
   background: transparent;
-  color: inherit;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 20px;
-  cursor: pointer;
+  color: var(--ink);
+  font-size: 14px;
+  min-height: var(--min-touch);
+  padding: 0 8px;
+  text-decoration: underline;
 }
 
-.side-big {
-  font-family: Georgia, 'Nanum Myeongjo', serif;
-  font-size: min(70vw, 70vh);
-  line-height: 1;
-  animation: side-breathe 4s ease-in-out infinite;
-}
-
-@keyframes side-breathe {
-  0%,
-  100% {
-    opacity: 0.85;
-    transform: scale(0.98);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.02);
-  }
-}
-
-.side-hint {
-  font-size: 12px;
-  opacity: 0.7;
+.we-boundary {
+  margin: 0;
+  padding: 14px 18px;
+  border-radius: 12px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  font-size: 14px;
+  color: var(--ink);
+  list-style: disc inside;
+  line-height: 1.6;
 }
 
 @media (max-width: 900px) {
-  .glyph-card,
-  .poem-grid,
-  .sleep-guard {
+  .share-grid,
+  .share-tips,
+  .sleep-guard,
+  .glyph-card {
     grid-template-columns: 1fr;
-  }
-
-  .dawn-phases {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .side-chars {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 760px) {
-  .merge-hero {
-    padding: 22px 20px 26px;
-    min-height: 0;
+  .we-jump {
+    grid-template-columns: 1fr;
   }
 
-  .merge-title {
-    font-size: 30px;
-  }
-
-  .merge-ball {
-    width: 88px;
-    height: 88px;
-    font-size: 34px;
-  }
-
-  .merge-we-word {
-    font-size: 72px;
+  .share-block {
+    padding: 18px;
   }
 
   .glyph-card {
     padding: 18px;
   }
 
-  .dawn-head {
-    flex-direction: column;
-    align-items: stretch;
+  .journal-item {
+    grid-template-columns: 56px minmax(0, 1fr);
   }
 
-  .dawn-scrub label {
-    min-width: 0;
-    flex: 1;
-  }
-
-  .side-launch {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .poem {
-    padding: 22px;
-  }
-
-  .poem p {
-    font-size: 17px;
+  .journal-meta,
+  .journal-remove {
+    grid-column: 2;
+    justify-self: start;
   }
 }

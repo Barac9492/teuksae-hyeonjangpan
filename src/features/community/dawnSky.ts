@@ -8,7 +8,7 @@ export interface DawnPhase {
 
 export const DAWN_PHASES: DawnPhase[] = [
   { id: "night", startMinute: 0, label: "아직 밤", line: "누군가는 벌써 알람을 맞춰 두었습니다." },
-  { id: "wake", startMinute: 180, label: "깨우는 시간", line: "다락방 방에 첫 '일어나셨어요?'가 올라옵니다." },
+  { id: "wake", startMinute: 180, label: "깨우는 시간", line: "다락방 단톡방에 첫 '일어나셨어요?'가 올라옵니다." },
   { id: "leave", startMinute: 220, label: "떠나는 시간", line: "시동 소리, 아이를 안고 나서는 현관, 이어폰을 꽂는 병실." },
   { id: "arrive", startMinute: 260, label: "도착하는 시간", line: "문이 열리고 자리를 찾습니다. 어디든 같은 자리입니다." },
   { id: "together", startMinute: 280, label: "함께 있는 시간", line: "같은 말씀 앞에, 같은 시간. 지금이 '우리'입니다." },

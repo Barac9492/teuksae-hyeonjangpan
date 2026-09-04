@@ -129,7 +129,7 @@ export function MomentsPanel({
           className="camera-btn"
           onClick={() => setOpen((value) => !value)}
         >
-          2초 영상 올리기
+          사진·영상 올리기
         </button>
       </div>
 

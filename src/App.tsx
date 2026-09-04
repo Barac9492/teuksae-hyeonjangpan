@@ -214,9 +214,7 @@ export default function App({ config, repository, runtime }: AppProps) {
             config={config}
             snapshot={snapshot}
             journal={journal}
-            onToggleTodayAttendance={() =>
-              void handleAttendance("today", !snapshot.attendance.today)
-            }
+            official={official}
             onCreateMomentDraft={(draft: MomentDraft) =>
               repo.addMomentDraft(draft)
             }
@@ -250,11 +248,7 @@ export default function App({ config, repository, runtime }: AppProps) {
         )}
 
         {activeView === "week" && (
-          <WeekSummaryView
-            config={config}
-            snapshot={snapshot}
-            shareCount={journal.entries.length}
-          />
+          <WeekSummaryView config={config} snapshot={snapshot} />
         )}
 
         {activeView === "operator" && (

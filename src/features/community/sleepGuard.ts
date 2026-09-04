@@ -52,13 +52,13 @@ export function planDriverNight(input: SleepPlanInput): SleepPlan | null {
   if (sleep > 720) sleep = 0; // 취침 시각이 기상보다 늦으면 잠이 없다.
 
   let verdict: SleepVerdict = "ok";
-  let message = `${formatDuration(sleep)} 잘 수 있어요. 운전대를 잡아도 좋은 밤입니다.`;
+  let message = `잠 ${formatDuration(sleep)}. 5시간 이상입니다.`;
   if (sleep < 300) {
     verdict = "danger";
-    message = `${formatDuration(sleep)}만 자게 됩니다. 오늘은 태워 주지 않는 것이 사랑입니다. 온라인으로 같은 예배를 드리거나, 다른 분 차에 타세요.`;
+    message = `잠 ${formatDuration(sleep)}. 5시간 아래면 졸음운전 위험이 큽니다. 취침을 당기거나, 다른 차를 타거나, 온라인으로 드리는 것도 방법입니다.`;
   } else if (sleep < 360) {
     verdict = "short";
-    message = `${formatDuration(sleep)} 잡니다. 조금 부족해요. 취침을 30분만 당기면 안전선을 넘습니다.`;
+    message = `잠 ${formatDuration(sleep)}. 5시간은 넘지만 여유가 적습니다. 취침을 30분 당기면 6시간이 됩니다.`;
   }
 
   return {

@@ -22,6 +22,8 @@ export interface SnackMessageInput {
 }
 
 export const ALLERGEN_OPTIONS = ["견과류", "우유", "밀", "계란"] as const;
+/** 사용자가 "없음"을 직접 고른 경우에만 부정문을 쓴다. 미입력은 '없음'이 아니다. */
+export const ALLERGEN_NONE = "없음";
 
 function clean(value: string, fallback: string): string {
   const trimmed = value.trim().replace(/\s+/g, " ");
@@ -51,18 +53,16 @@ export function buildCarpoolMessage(input: CarpoolMessageInput): string {
 
   if (input.role === "offer") {
     return [
-      `[특새 카풀 · 같이 타요]`,
+      `[특새 카풀 · 태워드립니다]`,
       `${input.dayLabel}요일 ${time} ${from} 출발 → ${venue}`,
-      `빈자리 ${seats}자리 있어요. 같이 가실 분 답장 주세요.`,
-      `출발 10분 전에 한 번 더 확인할게요. 조심히 다녀와요 🙂`,
+      `빈자리 ${seats}자리. 같이 가실 분은 답장 주세요.`,
     ].join("\n");
   }
 
   return [
     `[특새 카풀 · 태워주세요]`,
-    `${input.dayLabel}요일 ${time}쯤 ${from}에서 ${venue}로 가요.`,
-    `지나가는 길에 자리 있으시면 함께 타고 싶어요.`,
-    `어렵다면 괜찮아요. 온라인으로도 같은 예배를 드릴 수 있으니까요 🙂`,
+    `${input.dayLabel}요일 ${time}쯤 ${from}에서 ${venue}로 갑니다.`,
+    `지나가는 길에 자리가 있으면 답장 주세요.`,
   ].join("\n");
 }
 
@@ -70,25 +70,26 @@ export function buildSnackMessage(input: SnackMessageInput): string {
   const item = clean(input.item, "간식");
   const venue = clean(input.venueName, "예배 장소");
   const servings = Math.min(500, Math.max(1, Math.round(input.servings)));
+  const listed = input.allergens.filter((name) => name !== ALLERGEN_NONE);
   const allergenLine =
-    input.allergens.length > 0
-      ? `${input.allergens.join(", ")} 들어 있어요. 알레르기 있으신 분은 알려주세요.`
-      : "견과류·우유·밀·계란은 넣지 않았어요.";
+    listed.length > 0
+      ? `${listed.join(", ")} 들어 있습니다. 알레르기 있으신 분은 말씀해 주세요.`
+      : input.allergens.includes(ALLERGEN_NONE)
+        ? "견과류·우유·밀·계란은 넣지 않았습니다."
+        : "재료는 나눌 때 확인해 드리겠습니다. 알레르기 있으신 분은 미리 말씀해 주세요.";
 
   return [
-    `[특새 간식 · 떡을 떼며]`,
-    `${input.dayLabel}요일 우리 다락방 간식은 제가 준비할게요.`,
-    `${item} ${servings}개, 개별 포장이에요.`,
+    `[특새 간식]`,
+    `${input.dayLabel}요일 우리 다락방 간식은 제가 준비하겠습니다.`,
+    `${item} ${servings}개, 개별 포장입니다.`,
     allergenLine,
-    `예배 후 ${venue} 입구에서 조용히 나눠요 🙂`,
+    `예배 후 ${venue} 입구에서 나누겠습니다.`,
   ].join("\n");
 }
 
 export function buildThanksMessage(note: string): string {
-  const body = clean(note, "오늘 새벽, 함께여서 고마웠어요.");
-  return [`[특새 · 고마운 한 사람]`, body, `오늘도 같은 새벽을 함께 걸어 주셔서 고맙습니다.`].join(
-    "\n",
-  );
+  const body = clean(note, "오늘 새벽, 함께여서 고마웠습니다.");
+  return [`[특새 · 고맙습니다]`, body].join("\n");
 }
 
 export async function copyText(text: string): Promise<boolean> {

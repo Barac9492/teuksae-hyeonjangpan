@@ -22,6 +22,6 @@ node --check public/sw.js
 
 ## 우리 탭
 
-`우리` 탭은 분당**우리**교회의 "우리"를 강조한다. community·communion·compassion·communication(모두 라틴어 com-, "함께")을 축으로 카풀, 간식, 사진, 감사를 다룬다. 카풀과 간식은 앱이 사람을 매칭하지 않고 다락방 카톡에 붙여넣을 문장만 만든다. 사진은 기존 검수 대기 흐름을 그대로 쓴다. 나눔 기록은 기기에만 저장하며 순위·연속 기록·서버 전송이 없다.
+`우리` 탭은 다락방 단톡방에 보낼 것을 30초 안에 만드는 화면이다. 카풀·간식 문장 생성(앱은 매칭하지 않는다), 사진·영상 검수 대기 업로드, 운전자 잠 계산, 이름 없는 감사 한 줄, 기기 전용 나눔 기록으로 구성된다. 참석 인원은 같은 크기의 점으로 그린 '우리' 글자로만 보여 주며, 공식 승인 전 카드에는 "운영 리허설 · 예시 숫자"가 찍힌다. 나눔 기록은 세지도 비교하지도 않는다. 리뷰 기록은 `docs/reviews/`에 있다.
 
 설정은 [운영 런북](docs/RUNBOOK.md), 보안 계약은 [백엔드 계약](docs/BACKEND-CONTRACT.md)을 참고하세요. 프로덕션 본문 제어는 `public/app-config.json`의 `officialApproved`, active event의 `official_approved`, `VITE_APP_MODE=production`이 모두 충족될 때만 공식 안내가 됩니다.

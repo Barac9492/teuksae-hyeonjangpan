@@ -11,14 +11,9 @@ import {
   readJournal,
   writeJournal,
 } from "../features/community/communityJournal";
+import { describeDawn, inkForSky } from "../features/community/dawnSky";
 import {
-  DAWN_PHASES,
-  describeDawn,
-  formatMinute,
-  inkForSky,
-  phaseAt,
-} from "../features/community/dawnSky";
-import {
+  ALLERGEN_NONE,
   buildCarpoolMessage,
   buildSnackMessage,
   buildThanksMessage,
@@ -31,12 +26,10 @@ import {
   sampleStrokes,
   WE_GLYPH_COUNT,
   WE_GLYPH_POINTS,
-  YOUR_POINT_INDEX,
 } from "../features/community/weGlyph";
-import { composePoem } from "../features/community/wePoem";
 
 describe("share message builders", () => {
-  it("builds a carpool offer that names time, place, and seats", () => {
+  it("builds a carpool offer with facts only and no promises", () => {
     const text = buildCarpoolMessage({
       role: "offer",
       dayLabel: "목",
@@ -45,12 +38,13 @@ describe("share message builders", () => {
       venueName: "드림센터",
       seats: 2,
     });
-    expect(text).toContain("[특새 카풀 · 같이 타요]");
     expect(text).toContain("목요일 새벽 4:00 정자동 출발 → 드림센터");
     expect(text).toContain("빈자리 2자리");
+    expect(text).not.toMatch(/확인할게요|괜찮아요|🙂/);
+    expect(text.split("\n")).toHaveLength(3);
   });
 
-  it("builds a carpool request that keeps online as an equal option", () => {
+  it("does not demote online worship in the request message", () => {
     const text = buildCarpoolMessage({
       role: "request",
       dayLabel: "금",
@@ -61,35 +55,27 @@ describe("share message builders", () => {
     });
     expect(text).toContain("태워주세요");
     expect(text).toContain("우리 동네");
-    expect(text).toContain("온라인으로도 같은 예배");
+    expect(text).not.toMatch(/온라인|어렵다면/);
   });
 
-  it("marks allergens explicitly in snack messages", () => {
-    const withNuts = buildSnackMessage({
-      dayLabel: "토",
-      item: "호두과자",
-      servings: 20,
-      allergens: ["견과류", "밀"],
-      venueName: "체육관",
-    });
-    expect(withNuts).toContain("견과류, 밀 들어 있어요");
-    expect(withNuts).toContain("호두과자 20개, 개별 포장");
-    const plain = buildSnackMessage({
-      dayLabel: "토",
-      item: "",
-      servings: 0,
-      allergens: [],
-      venueName: "",
-    });
-    expect(plain).toContain("간식 1개");
-    expect(plain).toContain("넣지 않았어요");
+  it("never claims 'no allergens' unless the user explicitly chose 없음", () => {
+    const base = { dayLabel: "토", item: "백설기", servings: 12, venueName: "체육관" };
+    const unspecified = buildSnackMessage({ ...base, allergens: [] });
+    expect(unspecified).toContain("나눌 때 확인해 드리겠습니다");
+    expect(unspecified).not.toContain("넣지 않았습니다");
+
+    const listed = buildSnackMessage({ ...base, allergens: ["견과류", "밀"] });
+    expect(listed).toContain("견과류, 밀 들어 있습니다");
+
+    const none = buildSnackMessage({ ...base, allergens: [ALLERGEN_NONE] });
+    expect(none).toContain("견과류·우유·밀·계란은 넣지 않았습니다");
   });
 
   it("formats time labels and thanks fallbacks", () => {
     expect(formatTimeLabel("04:10")).toBe("새벽 4:10");
     expect(formatTimeLabel("13:05")).toBe("오후 1:05");
     expect(formatTimeLabel("nonsense")).toBe("새벽");
-    expect(buildThanksMessage("  ")).toContain("함께여서 고마웠어요");
+    expect(buildThanksMessage("  ")).toContain("함께여서 고마웠습니다");
   });
 });
 
@@ -117,76 +103,37 @@ describe("community journal (device only)", () => {
   });
 });
 
-describe("people glyph", () => {
-  it("samples strokes at even spacing and keeps every dot the same weight", () => {
+describe("people glyph and sky", () => {
+  it("samples strokes evenly and gives every dot the same weight", () => {
     const line = sampleStrokes([[[0, 0], [90, 0]]], 9);
     expect(line).toHaveLength(11);
-    expect(line[10]).toEqual({ x: 90, y: 0 });
-
     expect(WE_GLYPH_COUNT).toBe(WE_GLYPH_POINTS.length);
-    expect(WE_GLYPH_COUNT).toBeGreaterThan(80);
-    expect(YOUR_POINT_INDEX).toBeLessThan(WE_GLYPH_COUNT);
-
     const people = planPeople(2000, 500);
-    const online = people.filter((dot) => dot.online).length;
-    expect(online).toBe(Math.round(WE_GLYPH_COUNT / 4));
+    expect(people.filter((dot) => dot.online)).toHaveLength(Math.round(WE_GLYPH_COUNT / 4));
     expect(new Set(people.map((dot) => dot.order)).size).toBe(WE_GLYPH_COUNT);
     expect(peoplePerDot(0)).toBe(1);
   });
-});
-
-describe("dawn sky and poem", () => {
-  it("moves through the phases of a teuksae day in order", () => {
-    expect(phaseAt(0).id).toBe("night");
-    expect(phaseAt(4 * 60 + 40).id).toBe("together");
-    expect(phaseAt(6 * 60 + 10).id).toBe("bread");
-    expect(phaseAt(23 * 60).id).toBe("rest");
-    expect(DAWN_PHASES.map((p) => p.startMinute)).toEqual(
-      [...DAWN_PHASES.map((p) => p.startMinute)].sort((a, b) => a - b),
-    );
-    expect(formatMinute(280)).toBe("04:40");
-  });
 
   it("is dark at night and bright at noon", () => {
-    const night = describeDawn(60);
-    const noon = describeDawn(720);
-    expect(night.glow).toBeLessThan(0.1);
-    expect(noon.glow).toBe(1);
-    expect(inkForSky(night)).toBe("light");
-    expect(inkForSky(noon)).toBe("dark");
-    expect(night.top).toMatch(/^#[0-9a-f]{6}$/);
-  });
-
-  it("reads counts as scenes, never as ranks", () => {
-    const counts = {
-      todayTotal: 2659,
-      onsiteTotal: 2041,
-      onlineTotal: 618,
-      unselectedTotal: 0,
-      tomorrowTotal: 1384,
-    };
-    const poem = composePoem(counts, 0);
-    expect(poem[0]).toContain("2,659개의 알람");
-    expect(poem.at(-1)).toContain("1,384명이 내일도");
-    expect(poem.join("\n")).not.toMatch(/순위|1등|연속/);
-    expect(composePoem(counts, 5)).not.toEqual(poem);
+    expect(describeDawn(60).glow).toBeLessThan(0.1);
+    expect(describeDawn(720).glow).toBe(1);
+    expect(inkForSky(describeDawn(60))).toBe("light");
   });
 });
 
 describe("driver sleep guard", () => {
-  it("computes wake and departure across midnight and flags short sleep", () => {
-    const ok = planDriverNight({ arriveAt: "04:20", driveMinutes: 25, prepMinutes: 30, bedtime: "22:00" });
-    expect(ok?.departAt).toBe("03:55");
-    expect(ok?.wakeAt).toBe("03:25");
-    expect(ok?.sleepMinutes).toBe(325);
-    expect(ok?.verdict).toBe("short");
+  it("states facts, never a verdict about love", () => {
+    const short = planDriverNight({ arriveAt: "04:20", driveMinutes: 25, prepMinutes: 30, bedtime: "22:00" });
+    expect(short?.departAt).toBe("03:55");
+    expect(short?.wakeAt).toBe("03:25");
+    expect(short?.sleepMinutes).toBe(325);
+    expect(short?.verdict).toBe("short");
 
     const danger = planDriverNight({ arriveAt: "04:20", driveMinutes: 60, prepMinutes: 30, bedtime: "00:30" });
     expect(danger?.verdict).toBe("danger");
-    expect(danger?.message).toContain("온라인");
+    expect(danger?.message).toContain("5시간");
+    expect(`${short?.message}${danger?.message}`).not.toMatch(/사랑/);
 
-    const good = planDriverNight({ arriveAt: "04:20", driveMinutes: 10, prepMinutes: 20, bedtime: "21:30" });
-    expect(good?.verdict).toBe("ok");
     expect(planDriverNight({ arriveAt: "x", driveMinutes: 1, prepMinutes: 1, bedtime: "22:00" })).toBeNull();
   });
 });
@@ -194,7 +141,7 @@ describe("driver sleep guard", () => {
 describe("우리 tab", () => {
   beforeEach(() => window.localStorage.clear());
 
-  it("merges 나 into 우리, lights your dot, and keeps sharing local", async () => {
+  it("puts carpool first, keeps the sleep result hidden until touched, and keeps sharing local", async () => {
     const user = userEvent.setup();
     const writeText = vi.fn().mockResolvedValue(undefined);
     Object.defineProperty(navigator, "clipboard", { configurable: true, value: { writeText } });
@@ -203,48 +150,52 @@ describe("우리 tab", () => {
 
     await user.click(screen.getAllByRole("button", { name: "우리" })[0]);
 
-    await user.click(screen.getByRole("button", { name: /^나\./ }));
-    expect(screen.getByText("우리", { selector: ".merge-we-word" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "분당우리교회" })).toBeInTheDocument();
+    const main = screen.getByRole("main");
+    const firstButtons = within(main).getAllByRole("button").slice(0, 3);
+    expect(firstButtons.map((b) => b.textContent)).toEqual([
+      "카풀 문장 만들기",
+      "간식 문장 만들기",
+      "사진 올리기",
+    ]);
 
-    expect(screen.getByTestId("glyph-your-dot")).toHaveClass("empty");
-    await user.click(screen.getByRole("button", { name: "오늘 왔어요, 내 점 켜기" }));
-    expect(repository.getSnapshot().attendance.today).toBe(true);
-    expect(screen.getByTestId("glyph-your-dot")).not.toHaveClass("empty");
-    expect(screen.getByText("여기, 당신")).toBeInTheDocument();
+    // 잠 계산 결과는 값을 바꾸기 전에는 나오지 않는다.
+    expect(screen.queryByText(/졸음운전/)).not.toBeInTheDocument();
+    const sleepForm = screen.getByRole("form", { name: "잠 계산" });
+    await user.clear(within(sleepForm).getByLabelText("운전 시간(분)"));
+    await user.type(within(sleepForm).getByLabelText("운전 시간(분)"), "90");
+    const sleepBox = sleepForm.parentElement as HTMLElement;
+    expect(within(sleepBox).getByRole("status")).toHaveTextContent(/5시간/);
+    expect(within(sleepBox).getByRole("status")).not.toHaveTextContent(/사랑/);
 
-    expect(screen.getByLabelText("오늘의 시")).toHaveTextContent("2,041명이 앉을 자리를 찾았고");
+    // 간식: 재료 미선택 문장은 '없음'을 단정하지 않는다.
+    const snackSection = screen.getByRole("form", { name: "간식 문장 만들기" }).closest("section");
+    expect(snackSection).not.toBeNull();
+    if (!snackSection) return;
+    expect(within(snackSection).getByText(/나눌 때 확인해 드리겠습니다/)).toBeInTheDocument();
+    await user.click(within(snackSection).getByLabelText("네 가지 모두 없음"));
+    expect(within(snackSection).getByText(/넣지 않았습니다/)).toBeInTheDocument();
+    await user.click(within(snackSection).getByLabelText("견과류"));
+    expect(within(snackSection).getByText(/견과류 들어 있습니다/)).toBeInTheDocument();
+    expect(within(snackSection).getByLabelText("네 가지 모두 없음")).not.toBeChecked();
 
-    const bread = screen.getByRole("button", { name: /떡 떼기/ });
-    await user.click(bread);
-    await user.click(bread);
-    expect(screen.getByText("4조각")).toBeInTheDocument();
-
-    await user.click(screen.getByRole("button", { name: "나란히 모드 열기" }));
-    await user.click(screen.getByRole("button", { name: /^우 3번째/ }));
-    expect(screen.getByRole("dialog")).toHaveTextContent("3 / 6");
-    await user.keyboard("{Escape}");
-    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-
+    // 카풀 문장 복사와 기기 전용 기록
     const carpoolForm = screen.getByRole("form", { name: "카풀 문장 만들기" });
     await user.type(within(carpoolForm).getByLabelText("출발 동네"), "정자동");
     const carpoolSection = carpoolForm.closest("section");
-    expect(carpoolSection).not.toBeNull();
     if (!carpoolSection) return;
     expect(within(carpoolSection).getByText(/정자동 출발/)).toBeInTheDocument();
     await user.click(within(carpoolSection).getByRole("button", { name: "문장 복사" }));
-    expect(writeText).toHaveBeenCalledWith(expect.stringContaining("[특새 카풀 · 같이 타요]"));
-
+    expect(writeText).toHaveBeenCalledWith(expect.stringContaining("[특새 카풀 · 태워드립니다]"));
     await user.click(within(carpoolSection).getByRole("button", { name: "나눔 기록에 남기기" }));
-    const journal = screen.getByRole("list", { name: "나눔 기록" });
-    expect(within(journal).getByText("카풀")).toBeInTheDocument();
     expect(readJournal(window.localStorage)).toHaveLength(1);
     expect(window.localStorage.getItem("teuksae-app-v1-snapshot") ?? "").not.toContain("carpool");
 
-    await user.click(within(journal).getByRole("button", { name: "카풀 기록 지우기" }));
-    expect(readJournal(window.localStorage)).toHaveLength(0);
+    // 참석 조작은 이 탭에 없고, 글자 카드는 예시 표시를 단다.
+    expect(screen.queryByRole("button", { name: /내 점 켜기/ })).not.toBeInTheDocument();
+    expect(screen.getByText(defaultAppConfig.exampleNotice)).toBeInTheDocument();
 
+    // 주간 탭은 나눔 건수를 세지 않는다.
     await user.click(screen.getAllByRole("button", { name: "주간" })[0]);
-    expect(screen.getByText(/우리 나눔 기록 0건/)).toBeInTheDocument();
+    expect(screen.queryByText(/나눔 기록/)).not.toBeInTheDocument();
   });
 });

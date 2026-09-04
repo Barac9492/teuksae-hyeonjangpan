@@ -1,28 +1,23 @@
 import type { PublicCounts } from "../../domain/types";
 import type { DawnSky } from "./dawnSky";
-import { planPeople, YOUR_POINT_INDEX } from "./weGlyph";
+import { planPeople } from "./weGlyph";
 
 export interface WeCardInput {
   sky: DawnSky;
   counts: PublicCounts;
-  poem: string[];
   dayLabel: string;
-  dayNumber: number;
-  attendingToday: boolean;
   churchName: string;
+  official: boolean;
 }
 
 export const WE_CARD_WIDTH = 1080;
-export const WE_CARD_HEIGHT = 1350;
+export const WE_CARD_HEIGHT = 1080;
 
 /**
- * 얼굴 사진 대신 오늘 새벽을 담은 카드를 그린다. 사람은 점으로만 나온다.
- * 기기 안에서만 만들어지고, 어디로도 자동 전송되지 않는다.
+ * 얼굴 사진 대신 오늘 새벽을 담은 카드. 사람은 점으로만 나온다.
+ * 공식 승인 전에는 카드 위에 "운영 리허설 · 예시 숫자"를 크게 그린다.
  */
-export function drawWeCard(
-  canvas: HTMLCanvasElement,
-  input: WeCardInput,
-): boolean {
+export function drawWeCard(canvas: HTMLCanvasElement, input: WeCardInput): boolean {
   canvas.width = WE_CARD_WIDTH;
   canvas.height = WE_CARD_HEIGHT;
   const ctx = canvas.getContext("2d");
@@ -36,74 +31,50 @@ export function drawWeCard(
   ctx.fillStyle = sky;
   ctx.fillRect(0, 0, W, H);
 
-  // 해 기운
-  if (input.sky.glow > 0) {
-    const sun = ctx.createRadialGradient(W * 0.5, H * 0.62, 10, W * 0.5, H * 0.62, W * 0.6);
-    sun.addColorStop(0, `rgba(255, 214, 150, ${0.55 * input.sky.glow})`);
-    sun.addColorStop(1, "rgba(255, 214, 150, 0)");
-    ctx.fillStyle = sun;
-    ctx.fillRect(0, 0, W, H);
+  // 글자가 항상 읽히도록 어두운 스크림을 깐다.
+  ctx.fillStyle = "rgba(0, 0, 0, 0.42)";
+  ctx.fillRect(0, 0, W, H);
+
+  const font =
+    "-apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif";
+  ctx.fillStyle = "#ffffff";
+  ctx.textAlign = "left";
+  ctx.font = `700 34px ${font}`;
+  ctx.fillText(`${input.churchName} 특새 · ${input.dayLabel}요일 ${input.sky.timeLabel}`, 80, 110);
+
+  if (!input.official) {
+    ctx.fillStyle = "#ffd28a";
+    ctx.fillRect(80, 140, 470, 64);
+    ctx.fillStyle = "#27231f";
+    ctx.font = `800 34px ${font}`;
+    ctx.fillText("운영 리허설 · 예시 숫자", 100, 185);
   }
 
-  const light = input.sky.glow > 0.6 ? "#27231f" : "#ffffff";
-  const soft = input.sky.glow > 0.6 ? "rgba(39,35,31,0.7)" : "rgba(255,255,255,0.72)";
-  const font = "-apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif";
-
-  ctx.fillStyle = soft;
-  ctx.font = `600 30px ${font}`;
-  ctx.textAlign = "left";
-  ctx.fillText(`${input.churchName} 특새 · ${input.dayNumber}일차 ${input.dayLabel}`, 80, 110);
-  ctx.textAlign = "right";
-  ctx.fillText(`${input.sky.timeLabel} · ${input.sky.phase.label}`, W - 80, 110);
-
-  // 사람으로 쓴 '우리'
   const people = planPeople(input.counts.todayTotal, input.counts.onlineTotal);
   const scale = (W - 200) / 320;
   const ox = 100;
-  const oy = 190;
+  const oy = 260;
   for (const dot of people) {
-    const isYou = dot.index === YOUR_POINT_INDEX;
-    const online = dot.online;
     ctx.beginPath();
-    ctx.arc(ox + dot.x * scale, oy + dot.y * scale, isYou ? 15 : 9.5, 0, Math.PI * 2);
-    if (isYou && !input.attendingToday) {
-      ctx.strokeStyle = soft;
-      ctx.lineWidth = 3;
-      ctx.setLineDash([6, 6]);
-      ctx.stroke();
-      ctx.setLineDash([]);
-    } else {
-      ctx.fillStyle = isYou ? light : online ? "#7fc9a4" : "#e9a27f";
-      ctx.fill();
-      if (isYou) {
-        ctx.strokeStyle = soft;
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.arc(ox + dot.x * scale, oy + dot.y * scale, 30, 0, Math.PI * 2);
-        ctx.stroke();
-      }
-    }
+    ctx.arc(ox + dot.x * scale, oy + dot.y * scale, 10, 0, Math.PI * 2);
+    ctx.fillStyle = dot.online ? "#7fc9a4" : "#e9a27f";
+    ctx.fill();
   }
 
-  // 시
-  ctx.textAlign = "left";
-  ctx.fillStyle = light;
-  ctx.font = `400 40px Georgia, 'Nanum Myeongjo', serif`;
-  let y = 900;
-  for (const line of input.poem) {
-    ctx.fillText(line, 80, y, W - 160);
-    y += 62;
-  }
-
-  ctx.fillStyle = soft;
-  ctx.font = `500 26px ${font}`;
+  ctx.fillStyle = "#ffffff";
+  ctx.font = `400 44px Georgia, 'Nanum Myeongjo', serif`;
   ctx.fillText(
-    `현장 ${input.counts.onsiteTotal.toLocaleString("ko-KR")} · 온라인 ${input.counts.onlineTotal.toLocaleString("ko-KR")} · 같은 크기의 점`,
+    `오늘 ${input.counts.todayTotal.toLocaleString("ko-KR")}명이 함께 예배드립니다.`,
     80,
-    H - 90,
+    900,
   );
-  ctx.textAlign = "right";
-  ctx.fillText("얼굴 없이, 이름 없이, 함께 있음만", W - 80, H - 90);
+  ctx.font = `500 30px ${font}`;
+  ctx.fillText(
+    `현장 ${input.counts.onsiteTotal.toLocaleString("ko-KR")} · 온라인 ${input.counts.onlineTotal.toLocaleString("ko-KR")} · 점 하나는 약 ${Math.max(1, Math.round(input.counts.todayTotal / people.length))}명`,
+    80,
+    960,
+  );
+  ctx.fillText("얼굴 없이, 이름 없이", 80, 1010);
   return true;
 }
 
@@ -130,11 +101,11 @@ export async function shareWeCard(
   if (nav && typeof nav.share === "function") {
     try {
       if (typeof nav.canShare !== "function" || nav.canShare({ files: [file] })) {
-        await nav.share({ files: [file], title: "우리 카드" });
+        await nav.share({ files: [file], title: "특새 우리 카드" });
         return "shared";
       }
     } catch {
-      // 사용자가 취소했거나 지원하지 않음 → 다운로드로
+      // 취소 또는 미지원 → 저장으로
     }
   }
   try {
