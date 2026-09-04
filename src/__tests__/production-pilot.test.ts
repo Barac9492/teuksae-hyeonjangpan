@@ -191,7 +191,7 @@ describe("remote mapping and privacy", () => {
       createdAt: "now",
     });
     expect(serialized).not.toMatch(
-      /wordNote|prayerNote|practice|selectedAction|completedDayIndexes|서버 금지/,
+      /wordNote|prayerNote|practice|selectedAction|completedDayIndexes|carpool|snack|journal|서버 금지/,
     );
   });
 });
@@ -574,7 +574,7 @@ describe("SQL security contract", () => {
 
   it("never defines personal notes in remote SQL", () => {
     expect(sql).not.toMatch(
-      /wordNote|word_note|prayerNote|prayer_note|selectedAction|completedDayIndexes/,
+      /wordNote|word_note|prayerNote|prayer_note|selectedAction|completedDayIndexes|carpool|snack|share_entries|community_journal/,
     );
   });
 });

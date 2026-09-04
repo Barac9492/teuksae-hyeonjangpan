@@ -8,6 +8,8 @@ import type { MomentDraft, VenueId, VenueState } from "./domain/types";
 import { DailyPracticeView } from "./features/daily-practice/DailyPracticeView";
 import { Header, type AppView } from "./features/header/Header";
 import { BottomNavigation } from "./features/navigation/BottomNavigation";
+import { CommunityView } from "./features/community/CommunityView";
+import { useCommunityJournal } from "./features/community/communityJournal";
 import { OperatorView } from "./features/operator/OperatorView";
 import { Toast } from "./features/toast/Toast";
 import { TodayAfterView } from "./features/today-after/TodayAfterView";
@@ -37,6 +39,7 @@ export default function App({ config, repository, runtime }: AppProps) {
   const [online, setOnline] = useState(
     typeof navigator !== "undefined" ? navigator.onLine : true,
   );
+  const journal = useCommunityJournal();
 
   useEffect(() => {
     const unsubscribeSnapshot = repo.subscribe(setSnapshot);
@@ -202,19 +205,29 @@ export default function App({ config, repository, runtime }: AppProps) {
                 void handleAttendance("tomorrow", !snapshot.attendance.tomorrow)
               }
               onSelectVenue={(venueId) => void handleSelectVenue(venueId)}
-              onCreateMomentDraft={(draft: MomentDraft) =>
-                repo.addMomentDraft(draft)
-              }
-              onUploadMoment={repo.uploadMoment?.bind(repo)}
               repositoryMode={repo.mode}
-              connected={
-                repo.mode === "remote" &&
-                status.phase !== "offline" &&
-                status.phase !== "error"
-              }
-              onToast={showToast}
             />
           )}
+
+        {activeView === "we" && (
+          <CommunityView
+            config={config}
+            snapshot={snapshot}
+            journal={journal}
+            official={official}
+            onCreateMomentDraft={(draft: MomentDraft) =>
+              repo.addMomentDraft(draft)
+            }
+            onUploadMoment={repo.uploadMoment?.bind(repo)}
+            repositoryMode={repo.mode}
+            connected={
+              repo.mode === "remote" &&
+              status.phase !== "offline" &&
+              status.phase !== "error"
+            }
+            onToast={showToast}
+          />
+        )}
 
         {activeView === "today" && config.demoMode && demoPhase === "after" && (
           <TodayAfterView
