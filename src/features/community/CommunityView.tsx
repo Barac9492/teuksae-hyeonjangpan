@@ -15,6 +15,7 @@ import {
   buildSnackMessage,
   buildThanksMessage,
   copyText,
+  parseCount,
   type CarpoolRole,
 } from "./shareMessages";
 import { formatDuration, planDriverNight } from "./sleepGuard";
@@ -34,13 +35,18 @@ interface CommunityViewProps {
   onToast: (message: string) => void;
 }
 
+/** 섹션 제목으로 이동한다. 입력칸에 포커스를 주면 키보드가 튀어나오므로 제목에 준다. */
 function scrollToSection(id: string): void {
   const element = document.getElementById(id);
-  if (element && typeof element.scrollIntoView === "function") {
+  if (!element) return;
+  if (typeof element.scrollIntoView === "function") {
     element.scrollIntoView({ behavior: "smooth", block: "start" });
   }
-  const focusable = element?.querySelector<HTMLElement>("input, select, button");
-  focusable?.focus({ preventScroll: true });
+  const heading = element.querySelector<HTMLElement>("h2");
+  if (heading) {
+    heading.setAttribute("tabindex", "-1");
+    heading.focus({ preventScroll: true });
+  }
 }
 
 function formatEntryTime(iso: string): string {
@@ -51,6 +57,44 @@ function formatEntryTime(iso: string): string {
     minute: "2-digit",
     hour12: false,
   }).format(date);
+}
+
+interface PreviewProps {
+  text: string;
+  copyDisabled?: boolean;
+  copyHint?: string;
+  onCopy: () => void;
+  onRecord: () => void;
+}
+
+/** 미리보기는 탭 한 번에 전체 선택되는 읽기 전용 칸이다. 복사 실패 안내는 사라지지 않는다. */
+function Preview({ text, copyDisabled, copyHint, onCopy, onRecord }: PreviewProps) {
+  return (
+    <div className="share-preview">
+      <p className="label">단톡방에 붙여넣을 문장</p>
+      <textarea
+        className="share-text"
+        readOnly
+        value={text}
+        rows={4}
+        aria-label="붙여넣을 문장"
+        onFocus={(event) => event.target.select()}
+      />
+      <div className="share-actions">
+        <button type="button" className="solid" disabled={copyDisabled} onClick={onCopy}>
+          문장 복사
+        </button>
+        <button type="button" className="ghost" onClick={onRecord}>
+          나눔 기록에 남기기
+        </button>
+      </div>
+      {copyHint && (
+        <p className="share-hint" role="status">
+          {copyHint}
+        </p>
+      )}
+    </div>
+  );
 }
 
 export function CommunityView({
@@ -76,59 +120,75 @@ export function CommunityView({
     onsiteVenues[0]?.name ??
     "예배 장소";
 
+  // 숫자 칸은 문자열로 들고 있어야 지우는 동안 앱이 값을 써 넣지 않는다.
   const [carpoolRole, setCarpoolRole] = useState<CarpoolRole>("offer");
   const [carpoolFrom, setCarpoolFrom] = useState("");
   const [carpoolTime, setCarpoolTime] = useState("04:00");
-  const [carpoolSeats, setCarpoolSeats] = useState(2);
+  const [seatsText, setSeatsText] = useState("2");
+  const [ridersText, setRidersText] = useState("1");
   const [carpoolVenue, setCarpoolVenue] = useState(defaultVenue);
+  const [copyFailed, setCopyFailed] = useState<string | null>(null);
 
-  const [sleepTouched, setSleepTouched] = useState(false);
   const [arriveAt, setArriveAt] = useState("04:20");
-  const [driveMinutes, setDriveMinutes] = useState(25);
-  const [prepMinutes, setPrepMinutes] = useState(30);
+  const [driveText, setDriveText] = useState("25");
+  const [prepText, setPrepText] = useState("30");
   const [bedtime, setBedtime] = useState("22:30");
-  const sleepPlan = sleepTouched
-    ? planDriverNight({ arriveAt, driveMinutes, prepMinutes, bedtime })
+  const [sleepPlanShown, setSleepPlanShown] = useState(false);
+  const sleepPlan = sleepPlanShown
+    ? planDriverNight({
+        arriveAt,
+        driveMinutes: parseCount(driveText, 0, 180),
+        prepMinutes: parseCount(prepText, 0, 120),
+        bedtime,
+      })
     : null;
-  const touchSleep = <T,>(setter: (value: T) => void) => (value: T): void => {
-    setSleepTouched(true);
-    setter(value);
-  };
 
   const [snackItem, setSnackItem] = useState("");
-  const [snackCount, setSnackCount] = useState(12);
+  const [snackCountText, setSnackCountText] = useState("12");
   const [snackAllergens, setSnackAllergens] = useState<string[]>([]);
+  const [snackWrapped, setSnackWrapped] = useState(false);
   const [snackVenue, setSnackVenue] = useState(defaultVenue);
 
   const [thanksNote, setThanksNote] = useState("");
 
   const cardCanvasRef = useRef<HTMLCanvasElement>(null);
 
+  const carpoolFromEmpty = carpoolFrom.trim() === "";
   const carpoolMessage = buildCarpoolMessage({
     role: carpoolRole,
     dayLabel: todayLabel,
     time: carpoolTime,
     from: carpoolFrom,
     venueName: carpoolVenue,
-    seats: carpoolSeats,
+    seats:
+      carpoolRole === "offer"
+        ? parseCount(seatsText, 1, 6)
+        : parseCount(ridersText, 1, 6),
   });
   const snackMessage = buildSnackMessage({
     dayLabel: todayLabel,
     item: snackItem,
-    servings: snackCount,
+    servings: parseCount(snackCountText, 1, 500),
     allergens: snackAllergens,
     venueName: snackVenue,
+    individuallyWrapped: snackWrapped,
   });
   const thanksMessage = buildThanksMessage(thanksNote);
 
-  const handleCopy = async (text: string): Promise<void> => {
+  const handleCopy = async (text: string, key: string): Promise<void> => {
     const ok = await copyText(text);
-    onToast(
-      ok
-        ? "복사했습니다. 다락방 단톡방에 붙여넣어 주세요."
-        : "자동 복사가 안 되는 기기입니다. 문장을 길게 눌러 복사해 주세요.",
-    );
+    if (ok) {
+      setCopyFailed(null);
+      onToast("복사했습니다. 다락방 단톡방에 붙여넣어 주세요.");
+      return;
+    }
+    setCopyFailed(key);
   };
+
+  const copyHintFor = (key: string): string | undefined =>
+    copyFailed === key
+      ? "이 기기에서는 자동 복사가 되지 않습니다. 위 문장을 한 번 누르면 전체가 선택되니 복사해 주세요."
+      : undefined;
 
   const handleRecord = (kind: ShareKind, note: string): void => {
     journal.add(kind, note, config.todayIndex);
@@ -138,7 +198,6 @@ export function CommunityView({
   const toggleAllergen = (name: string): void => {
     setSnackAllergens((current) => {
       if (current.includes(name)) return current.filter((item) => item !== name);
-      // '없음'과 다른 재료는 동시에 고를 수 없다.
       return name === ALLERGEN_NONE
         ? [ALLERGEN_NONE]
         : [...current.filter((item) => item !== ALLERGEN_NONE), name];
@@ -169,7 +228,7 @@ export function CommunityView({
       onToast("카드를 내보내지 못했습니다.");
       return;
     }
-    journal.add("photo", "오늘 카드를 나눴습니다", config.todayIndex);
+    journal.add("photo", "오늘 카드를 만들었습니다", config.todayIndex);
     onToast(outcome === "shared" ? "카드를 나눴습니다." : "카드를 저장했습니다.");
   };
 
@@ -178,14 +237,13 @@ export function CommunityView({
   return (
     <>
       <section className="we-top" aria-label="우리 탭 바로가기">
-        <p className="eyebrow">우리</p>
         <h2>다락방 단톡방에 보낼 것</h2>
         <p className="we-top-lead">
           앱은 사람을 짝지어 주지 않습니다. 문장만 만들어 드리고, 붙여넣기는
           직접 하십니다.
         </p>
         <div className="we-jump">
-          <button type="button" onClick={() => scrollToSection("we-carpool")}>
+          <button type="button" className="primary" onClick={() => scrollToSection("we-carpool")}>
             카풀 문장 만들기
           </button>
           <button type="button" onClick={() => scrollToSection("we-snack")}>
@@ -198,12 +256,7 @@ export function CommunityView({
       </section>
 
       <section id="we-carpool" className="we-section share-block">
-        <div className="section-head">
-          <div>
-            <p className="eyebrow">카풀</p>
-            <h2>같이 타기</h2>
-          </div>
-        </div>
+        <h2 className="we-h2">카풀</h2>
         <div className="share-grid">
           <form
             className="share-form"
@@ -247,15 +300,28 @@ export function CommunityView({
                   onChange={(event) => setCarpoolTime(event.target.value)}
                 />
               </label>
-              {carpoolRole === "offer" && (
+              {carpoolRole === "offer" ? (
                 <label>
                   빈자리
                   <input
                     type="number"
+                    inputMode="numeric"
                     min={1}
                     max={6}
-                    value={carpoolSeats}
-                    onChange={(event) => setCarpoolSeats(Number(event.target.value) || 1)}
+                    value={seatsText}
+                    onChange={(event) => setSeatsText(event.target.value)}
+                  />
+                </label>
+              ) : (
+                <label>
+                  인원
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    min={1}
+                    max={6}
+                    value={ridersText}
+                    onChange={(event) => setRidersText(event.target.value)}
                   />
                 </label>
               )}
@@ -274,33 +340,15 @@ export function CommunityView({
               </select>
             </label>
           </form>
-          <div className="share-preview">
-            <p className="label">단톡방에 붙여넣을 문장</p>
-            <pre>{carpoolMessage}</pre>
-            <div className="share-actions">
-              <button
-                type="button"
-                className="solid"
-                onClick={() => void handleCopy(carpoolMessage)}
-              >
-                문장 복사
-              </button>
-              <button
-                type="button"
-                className="ghost"
-                onClick={() =>
-                  handleRecord(
-                    "carpool",
-                    carpoolRole === "offer"
-                      ? `빈자리 ${carpoolSeats}자리를 다락방에 열었습니다`
-                      : "다락방에 같이 타고 싶다고 말했습니다",
-                  )
-                }
-              >
-                나눔 기록에 남기기
-              </button>
-            </div>
-          </div>
+          <Preview
+            text={carpoolMessage}
+            copyDisabled={carpoolFromEmpty}
+            copyHint={
+              carpoolFromEmpty ? "출발 동네를 적으면 복사할 수 있습니다." : copyHintFor("carpool")
+            }
+            onCopy={() => void handleCopy(carpoolMessage, "carpool")}
+            onRecord={() => handleRecord("carpool", "카풀 문장을 만들었습니다")}
+          />
         </div>
 
         <details className="share-details">
@@ -308,49 +356,49 @@ export function CommunityView({
           <div className="sleep-guard">
             <form
               className="share-form"
-              onSubmit={(event) => event.preventDefault()}
+              onSubmit={(event) => {
+                event.preventDefault();
+                setSleepPlanShown(true);
+              }}
               aria-label="잠 계산"
             >
               <div className="share-row">
                 <label>
                   도착 목표
-                  <input
-                    type="time"
-                    value={arriveAt}
-                    onChange={(e) => touchSleep(setArriveAt)(e.target.value)}
-                  />
+                  <input type="time" value={arriveAt} onChange={(e) => setArriveAt(e.target.value)} />
                 </label>
                 <label>
-                  운전 시간(분)
+                  운전(분)
                   <input
                     type="number"
+                    inputMode="numeric"
                     min={0}
                     max={180}
-                    value={driveMinutes}
-                    onChange={(e) => touchSleep(setDriveMinutes)(Number(e.target.value) || 0)}
+                    value={driveText}
+                    onChange={(e) => setDriveText(e.target.value)}
                   />
                 </label>
               </div>
               <div className="share-row">
                 <label>
-                  준비 시간(분)
+                  준비(분)
                   <input
                     type="number"
+                    inputMode="numeric"
                     min={0}
                     max={120}
-                    value={prepMinutes}
-                    onChange={(e) => touchSleep(setPrepMinutes)(Number(e.target.value) || 0)}
+                    value={prepText}
+                    onChange={(e) => setPrepText(e.target.value)}
                   />
                 </label>
                 <label>
                   오늘 밤 취침
-                  <input
-                    type="time"
-                    value={bedtime}
-                    onChange={(e) => touchSleep(setBedtime)(e.target.value)}
-                  />
+                  <input type="time" value={bedtime} onChange={(e) => setBedtime(e.target.value)} />
                 </label>
               </div>
+              <button type="submit" className="solid wide">
+                계산하기
+              </button>
             </form>
             {sleepPlan ? (
               <div className={`sleep-result ${sleepPlan.verdict}`} role="status">
@@ -372,39 +420,39 @@ export function CommunityView({
               </div>
             ) : (
               <p className="sleep-hint">
-                값을 바꾸면 기상·출발 시각과 잠 시간을 계산합니다. 기준은 잠 5시간입니다.
+                {sleepPlanShown
+                  ? "시각을 다시 확인해 주세요."
+                  : "계산하기를 누르면 기상·출발 시각과 잠 시간이 나옵니다. 기준은 잠 5시간입니다."}
               </p>
             )}
           </div>
         </details>
 
-        <ul className="share-tips">
-          <li>
-            <b>만나는 곳</b>
-            <span>집 앞보다 큰길가 밝은 곳에서 타고 내리는 편이 안전합니다.</span>
-          </li>
-          <li>
-            <b>아이 동반</b>
-            <span>카시트가 없으면 아이는 태우지 않습니다.</span>
-          </li>
-          <li>
-            <b>예배 후</b>
-            <span>운전자는 출차 전 10분만 앉아 계십시오.</span>
-          </li>
-          <li>
-            <b>온라인으로</b>
-            <span>온라인 예배도 같은 예배입니다. 참석 표시도 같습니다.</span>
-          </li>
-        </ul>
+        <details className="share-details">
+          <summary>카풀 안전 수칙</summary>
+          <ul className="share-tips">
+            <li>
+              <b>만나는 곳</b>
+              <span>집 앞보다 큰길가 밝은 곳에서 타고 내리는 편이 안전합니다.</span>
+            </li>
+            <li>
+              <b>아이 동반</b>
+              <span>카시트가 없으면 아이는 태우지 않습니다.</span>
+            </li>
+            <li>
+              <b>예배 후</b>
+              <span>운전자는 출차 전 10분만 앉아 계십시오.</span>
+            </li>
+            <li>
+              <b>온라인으로</b>
+              <span>온라인 예배도 같은 예배입니다. 참석 표시도 같습니다.</span>
+            </li>
+          </ul>
+        </details>
       </section>
 
       <section id="we-snack" className="we-section share-block">
-        <div className="section-head">
-          <div>
-            <p className="eyebrow">간식</p>
-            <h2>간식 맡기</h2>
-          </div>
-        </div>
+        <h2 className="we-h2">간식</h2>
         <div className="share-grid">
           <form
             className="share-form"
@@ -426,10 +474,11 @@ export function CommunityView({
                 개수
                 <input
                   type="number"
+                  inputMode="numeric"
                   min={1}
                   max={500}
-                  value={snackCount}
-                  onChange={(event) => setSnackCount(Number(event.target.value) || 1)}
+                  value={snackCountText}
+                  onChange={(event) => setSnackCountText(event.target.value)}
                 />
               </label>
               <label>
@@ -456,61 +505,51 @@ export function CommunityView({
                 </label>
               ))}
             </fieldset>
+            <label className="chip-check wide-chip">
+              <input
+                type="checkbox"
+                checked={snackWrapped}
+                onChange={(event) => setSnackWrapped(event.target.checked)}
+              />
+              <span>개별 포장했습니다</span>
+            </label>
           </form>
-          <div className="share-preview">
-            <p className="label">단톡방에 붙여넣을 문장</p>
-            <pre>{snackMessage}</pre>
-            <div className="share-actions">
-              <button
-                type="button"
-                className="solid"
-                onClick={() => void handleCopy(snackMessage)}
-              >
-                문장 복사
-              </button>
-              <button
-                type="button"
-                className="ghost"
-                onClick={() =>
-                  handleRecord("snack", `${snackItem.trim() || "간식"} ${snackCount}개를 맡았습니다`)
-                }
-              >
-                나눔 기록에 남기기
-              </button>
-            </div>
-          </div>
+          <Preview
+            text={snackMessage}
+            copyHint={copyHintFor("snack")}
+            onCopy={() => void handleCopy(snackMessage, "snack")}
+            onRecord={() => handleRecord("snack", "간식 문장을 만들었습니다")}
+          />
         </div>
-        <ul className="share-tips">
-          <li>
-            <b>개별 포장</b>
-            <span>손으로 집지 않게 하나씩 싸서 준비합니다.</span>
-          </li>
-          <li>
-            <b>알레르기</b>
-            <span>견과류, 우유, 밀, 계란은 반드시 표시합니다.</span>
-          </li>
-          <li>
-            <b>조용히</b>
-            <span>예배 중에는 꺼내지 않고, 마친 뒤 입구 밖에서 나눕니다.</span>
-          </li>
-          <li>
-            <b>남으면</b>
-            <span>안내팀에게 건네면 늦게 오신 분들께 돌아갑니다.</span>
-          </li>
-        </ul>
+        <details className="share-details">
+          <summary>간식 나눔 수칙</summary>
+          <ul className="share-tips">
+            <li>
+              <b>개별 포장</b>
+              <span>손으로 집지 않게 하나씩 싸서 준비합니다.</span>
+            </li>
+            <li>
+              <b>알레르기</b>
+              <span>견과류, 우유, 밀, 계란은 반드시 표시합니다.</span>
+            </li>
+            <li>
+              <b>조용히</b>
+              <span>예배 중에는 꺼내지 않고, 마친 뒤 입구 밖에서 나눕니다.</span>
+            </li>
+            <li>
+              <b>남으면</b>
+              <span>안내팀에게 건네면 늦게 오신 분들께 돌아갑니다.</span>
+            </li>
+          </ul>
+        </details>
       </section>
 
       <section id="we-photo" className="we-section">
-        <div className="section-head">
-          <div>
-            <p className="eyebrow">사진</p>
-            <h2>사진·영상 올리기</h2>
-          </div>
-          <p>얼굴, 차량번호, 아이 이름이 나오지 않게 찍습니다. 검수 전에는 공개되지 않습니다.</p>
-        </div>
+        <h2 className="we-h2">사진·영상 올리기</h2>
         <MomentsPanel
-          heading="사진·영상 나누기"
-          intro="올린 파일은 운영팀 검수 후 교회 내부에서만 나눕니다."
+          alwaysOpen
+          showExamples={false}
+          showHeading={false}
           repositoryMode={repositoryMode}
           connected={connected}
           onDraftCreated={handleMomentDraft}
@@ -521,33 +560,23 @@ export function CommunityView({
 
       <section className="we-section glyph-card" aria-labelledby="glyph-heading">
         <div className="glyph-copy">
-          <p className="eyebrow">함께 있음</p>
           <h3 id="glyph-heading">
             오늘 {snapshot.publicCounts.todayTotal.toLocaleString("ko-KR")}명이 함께
             예배드립니다.
           </h3>
           <p>
             점 {WE_GLYPH_COUNT}개, 점 하나는 약 {perDot.toLocaleString("ko-KR")}명입니다. 현장{" "}
-            {snapshot.publicCounts.onsiteTotal.toLocaleString("ko-KR")}명과 온라인{" "}
-            {snapshot.publicCounts.onlineTotal.toLocaleString("ko-KR")}명이 같은 크기의 점입니다.
+            {snapshot.publicCounts.onsiteTotal.toLocaleString("ko-KR")}명은 채운 점, 온라인{" "}
+            {snapshot.publicCounts.onlineTotal.toLocaleString("ko-KR")}명은 속이 빈 점입니다. 크기는
+            같습니다.
           </p>
           {!official && <p className="glyph-notice">{config.exampleNotice}</p>}
-          <ul className="we-legend" aria-label="점 색 안내">
-            <li>
-              <span className="we-legend-dot onsite" aria-hidden="true" />
-              현장
-            </li>
-            <li>
-              <span className="we-legend-dot online" aria-hidden="true" />
-              온라인
-            </li>
-          </ul>
           <button type="button" className="solid glyph-cta" onClick={() => void handleCard()}>
             오늘 카드 만들어 나누기
           </button>
           <p className="glyph-fine">
             카드에는 점과 숫자만 들어갑니다. 얼굴도 이름도 없습니다.
-            {!official && ' "운영 리허설 · 예시 숫자" 표시가 함께 찍힙니다.'}
+            {!official && ' "운영 리허설 · 예시 숫자" 표시가 크게 찍힙니다.'}
           </p>
           <canvas ref={cardCanvasRef} className="card-canvas" aria-hidden="true" />
         </div>
@@ -559,13 +588,8 @@ export function CommunityView({
       </section>
 
       <section id="we-thanks" className="we-section share-block">
-        <div className="section-head">
-          <div>
-            <p className="eyebrow">고맙습니다</p>
-            <h2>오늘 고마운 한 사람</h2>
-          </div>
-          <p>이름은 적지 않아도 됩니다. "정자동에서 태워주신 분"이면 충분합니다.</p>
-        </div>
+        <h2 className="we-h2">오늘 고마운 한 사람</h2>
+        <p className="we-p">이름은 적지 않아도 됩니다. "정자동에서 태워주신 분"이면 충분합니다.</p>
         <div className="share-grid">
           <form
             className="share-form"
@@ -583,37 +607,21 @@ export function CommunityView({
               />
             </label>
           </form>
-          <div className="share-preview">
-            <p className="label">전하고 싶다면</p>
-            <pre>{thanksMessage}</pre>
-            <div className="share-actions">
-              <button
-                type="button"
-                className="solid"
-                onClick={() => void handleCopy(thanksMessage)}
-              >
-                문장 복사
-              </button>
-              <button
-                type="button"
-                className="ghost"
-                onClick={() => handleRecord("thanks", thanksNote.trim() || "함께여서 고마웠습니다")}
-              >
-                나눔 기록에 남기기
-              </button>
-            </div>
-          </div>
+          <Preview
+            text={thanksMessage}
+            copyDisabled={thanksNote.trim() === ""}
+            copyHint={
+              thanksNote.trim() === "" ? "받은 것을 적으면 복사할 수 있습니다." : copyHintFor("thanks")
+            }
+            onCopy={() => void handleCopy(thanksMessage, "thanks")}
+            onRecord={() => handleRecord("thanks", thanksNote.trim() || "고마운 한 사람을 떠올렸습니다")}
+          />
         </div>
       </section>
 
       <section className="we-section">
-        <div className="section-head">
-          <div>
-            <p className="eyebrow">나눔 기록</p>
-            <h2>이 기기에만 남는 기록</h2>
-          </div>
-          <p>누구와도 비교하지 않고, 세지 않습니다.</p>
-        </div>
+        <h2 className="we-h2">이 기기에만 남는 기록</h2>
+        <p className="we-p">누구와도 비교하지 않고, 세지 않습니다.</p>
         {journal.entries.length === 0 ? (
           <p className="empty-copy">아직 기록이 없습니다.</p>
         ) : (
@@ -624,9 +632,12 @@ export function CommunityView({
               return (
                 <li key={entry.id} className={`journal-item ${entry.kind}`}>
                   <span className="journal-kind">{SHARE_KIND_LABELS[entry.kind]}</span>
-                  <span className="journal-note">{entry.note}</span>
-                  <span className="journal-meta">
-                    {dayLabel} {formatEntryTime(entry.createdAt)}
+                  <span className="journal-note">
+                    {entry.note}
+                    <small className="journal-meta">
+                      {" "}
+                      {dayLabel} {formatEntryTime(entry.createdAt)}
+                    </small>
                   </span>
                   <button
                     type="button"

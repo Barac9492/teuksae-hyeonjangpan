@@ -1,23 +1,5 @@
 /** 실제 시계에 따라 바뀌는 새벽 하늘과 '하루의 우리' 시간표. */
-export interface DawnPhase {
-  id: string;
-  startMinute: number;
-  label: string;
-  line: string;
-}
-
-export const DAWN_PHASES: DawnPhase[] = [
-  { id: "night", startMinute: 0, label: "아직 밤", line: "누군가는 벌써 알람을 맞춰 두었습니다." },
-  { id: "wake", startMinute: 180, label: "깨우는 시간", line: "다락방 단톡방에 첫 '일어나셨어요?'가 올라옵니다." },
-  { id: "leave", startMinute: 220, label: "떠나는 시간", line: "시동 소리, 아이를 안고 나서는 현관, 이어폰을 꽂는 병실." },
-  { id: "arrive", startMinute: 260, label: "도착하는 시간", line: "문이 열리고 자리를 찾습니다. 어디든 같은 자리입니다." },
-  { id: "together", startMinute: 280, label: "함께 있는 시간", line: "같은 말씀 앞에, 같은 시간. 지금이 '우리'입니다." },
-  { id: "bread", startMinute: 360, label: "떡을 떼는 시간", line: "입구 밖에서 떡 한 조각과 두유 한 병이 오갑니다." },
-  { id: "scatter", startMinute: 400, label: "흩어지는 시간", line: "출근길과 등굣길로 흩어져도 우리는 그대로입니다." },
-  { id: "live", startMinute: 540, label: "살아내는 시간", line: "붙든 말씀 한 문장을 하루에 심습니다." },
-  { id: "rest", startMinute: 1260, label: "잠을 지키는 시간", line: "내일 새벽을 위해 오늘 밤은 일찍 눕습니다." },
-];
-
+/** 실제 시계에 따라 바뀌는 새벽 하늘빛. 카드 배경에만 쓴다. */
 interface SkyStop {
   minute: number;
   top: string;
@@ -61,27 +43,10 @@ export interface DawnSky {
   top: string;
   bottom: string;
   glow: number;
-  phase: DawnPhase;
-  timeLabel: string;
 }
 
 export function minuteOfDay(date: Date): number {
   return date.getHours() * 60 + date.getMinutes();
-}
-
-export function formatMinute(minute: number): string {
-  const m = ((Math.round(minute) % 1440) + 1440) % 1440;
-  const h = Math.floor(m / 60);
-  const mm = String(m % 60).padStart(2, "0");
-  return `${String(h).padStart(2, "0")}:${mm}`;
-}
-
-export function phaseAt(minute: number): DawnPhase {
-  let current = DAWN_PHASES[0];
-  for (const phase of DAWN_PHASES) {
-    if (minute >= phase.startMinute) current = phase;
-  }
-  return current;
 }
 
 export function describeDawn(minute: number): DawnSky {
@@ -102,12 +67,5 @@ export function describeDawn(minute: number): DawnSky {
     top: mixHex(from.top, to.top, t),
     bottom: mixHex(from.bottom, to.bottom, t),
     glow: from.glow + (to.glow - from.glow) * t,
-    phase: phaseAt(m),
-    timeLabel: formatMinute(m),
   };
-}
-
-/** 어두운 하늘이면 흰 글자, 밝은 하늘이면 먹색 글자. */
-export function inkForSky(sky: DawnSky): "light" | "dark" {
-  return sky.glow > 0.6 ? "dark" : "light";
 }

@@ -80,9 +80,6 @@ export const WE_GLYPH_POINTS: GlyphPoint[] = sampleStrokes(
 );
 export const WE_GLYPH_COUNT = WE_GLYPH_POINTS.length;
 
-/** '당신'의 점: ㅇ 위 오른쪽 어귀. */
-export const YOUR_POINT_INDEX = 6;
-
 export interface PersonDot extends GlyphPoint {
   index: number;
   online: boolean;

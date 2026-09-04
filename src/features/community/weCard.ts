@@ -40,14 +40,14 @@ export function drawWeCard(canvas: HTMLCanvasElement, input: WeCardInput): boole
   ctx.fillStyle = "#ffffff";
   ctx.textAlign = "left";
   ctx.font = `700 34px ${font}`;
-  ctx.fillText(`${input.churchName} 특새 · ${input.dayLabel}요일 ${input.sky.timeLabel}`, 80, 110);
+  ctx.fillText(`${input.churchName} 특새 · ${input.dayLabel}요일`, 80, 110);
 
   if (!input.official) {
     ctx.fillStyle = "#ffd28a";
-    ctx.fillRect(80, 140, 470, 64);
+    ctx.fillRect(80, 140, 920, 120);
     ctx.fillStyle = "#27231f";
-    ctx.font = `800 34px ${font}`;
-    ctx.fillText("운영 리허설 · 예시 숫자", 100, 185);
+    ctx.font = `800 64px ${font}`;
+    ctx.fillText("운영 리허설 · 예시 숫자", 110, 224);
   }
 
   const people = planPeople(input.counts.todayTotal, input.counts.onlineTotal);
@@ -57,24 +57,29 @@ export function drawWeCard(canvas: HTMLCanvasElement, input: WeCardInput): boole
   for (const dot of people) {
     ctx.beginPath();
     ctx.arc(ox + dot.x * scale, oy + dot.y * scale, 10, 0, Math.PI * 2);
-    ctx.fillStyle = dot.online ? "#7fc9a4" : "#e9a27f";
-    ctx.fill();
+    if (dot.online) {
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = "#e9a27f";
+      ctx.stroke();
+    } else {
+      ctx.fillStyle = "#e9a27f";
+      ctx.fill();
+    }
   }
 
   ctx.fillStyle = "#ffffff";
   ctx.font = `400 44px Georgia, 'Nanum Myeongjo', serif`;
   ctx.fillText(
-    `오늘 ${input.counts.todayTotal.toLocaleString("ko-KR")}명이 함께 예배드립니다.`,
+    `오늘 ${input.counts.todayTotal.toLocaleString("ko-KR")}명${input.official ? "" : " (예시)"}이 함께 예배드립니다.`,
     80,
     900,
   );
   ctx.font = `500 30px ${font}`;
   ctx.fillText(
-    `현장 ${input.counts.onsiteTotal.toLocaleString("ko-KR")} · 온라인 ${input.counts.onlineTotal.toLocaleString("ko-KR")} · 점 하나는 약 ${Math.max(1, Math.round(input.counts.todayTotal / people.length))}명`,
+    `현장 ${input.counts.onsiteTotal.toLocaleString("ko-KR")} · 온라인 ${input.counts.onlineTotal.toLocaleString("ko-KR")}(속 빈 점) · 점 하나는 약 ${Math.max(1, Math.round(input.counts.todayTotal / people.length))}명`,
     80,
     960,
   );
-  ctx.fillText("얼굴 없이, 이름 없이", 80, 1010);
   return true;
 }
 

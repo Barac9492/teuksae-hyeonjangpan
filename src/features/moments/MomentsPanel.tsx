@@ -9,6 +9,12 @@ import {
 interface MomentsPanelProps {
   heading?: string;
   intro?: string;
+  /** 항상 펼쳐 둔다. 토글 버튼을 숨긴다. */
+  alwaysOpen?: boolean;
+  /** 로컬 리허설 예시 장면 4장을 보여줄지. */
+  showExamples?: boolean;
+  /** 제목 블록을 그릴지. 바깥에 제목이 이미 있으면 false. */
+  showHeading?: boolean;
   repositoryMode: "local" | "remote";
   connected: boolean;
   onDraftCreated: (draft: MomentDraft) => void;
@@ -33,13 +39,17 @@ function generateId(): string {
 export function MomentsPanel({
   heading = "오늘 특새 영상",
   intro = "촬영 파일은 자동 공개되지 않고 운영팀 검수 대기 상태로만 기록됩니다.",
+  alwaysOpen = false,
+  showExamples = true,
+  showHeading = true,
   repositoryMode,
   connected,
   onDraftCreated,
   onUpload,
   onToast,
 }: MomentsPanelProps) {
-  const [open, setOpen] = useState(false);
+  const [openState, setOpen] = useState(false);
+  const open = alwaysOpen || openState;
   const [consentChecked, setConsentChecked] = useState(false);
   const [preview, setPreview] = useState<LocalPreview | null>(null);
   const [uploadStatus, setUploadStatus] = useState("");
@@ -118,22 +128,33 @@ export function MomentsPanel({
   };
 
   return (
-    <section className="moment-wrap" aria-labelledby="moments-heading">
-      <div className="moment-head">
-        <div>
-          <h3 id="moments-heading">{heading}</h3>
-          <p>{intro}</p>
+    <section
+      className="moment-wrap"
+      aria-labelledby={showHeading ? "moments-heading" : undefined}
+      aria-label={showHeading ? undefined : "사진·영상 업로드"}
+    >
+      {(showHeading || !alwaysOpen) && (
+        <div className="moment-head">
+          {showHeading && (
+            <div>
+              <h3 id="moments-heading">{heading}</h3>
+              <p>{intro}</p>
+            </div>
+          )}
+          {!alwaysOpen && (
+            <button
+              type="button"
+              className="camera-btn"
+              aria-expanded={open}
+              onClick={() => setOpen((value) => !value)}
+            >
+              사진·영상 올리기
+            </button>
+          )}
         </div>
-        <button
-          type="button"
-          className="camera-btn"
-          onClick={() => setOpen((value) => !value)}
-        >
-          사진·영상 올리기
-        </button>
-      </div>
+      )}
 
-      {repositoryMode === "local" && (
+      {repositoryMode === "local" && showExamples && (
         <>
           <p className="file-hint">
             아래 장면은 로컬 리허설용 예시이며 실제 제출물이 아닙니다.
@@ -196,7 +217,16 @@ export function MomentsPanel({
             />
             <span>영상에 나온 분들이 교회 내부 공유에 동의했습니다.</span>
           </label>
-          <label className="file-label">
+          <label
+            className={`file-label ${
+              !consentChecked || uploading || (repositoryMode === "remote" && !connected)
+                ? "is-disabled"
+                : ""
+            }`}
+            aria-disabled={
+              !consentChecked || uploading || (repositoryMode === "remote" && !connected)
+            }
+          >
             촬영하거나 파일 선택
             <input
               type="file"

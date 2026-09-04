@@ -64,7 +64,7 @@ export default function App({ config, repository, runtime }: AppProps) {
   const showToast = (message: string): void => {
     setToastMessage(message);
     setToastVisible(true);
-    window.setTimeout(() => setToastVisible(false), 2200);
+    window.setTimeout(() => setToastVisible(false), 4000);
   };
 
   const handleAttendance = async (
