@@ -1515,7 +1515,8 @@
 
 .sleep-nums {
   display: flex;
-  gap: 18px;
+  flex-wrap: wrap;
+  gap: 12px 22px;
 }
 
 .sleep-nums span {
@@ -1529,7 +1530,8 @@
 
 .sleep-nums b {
   font-family: Georgia, serif;
-  font-size: 24px;
+  font-size: 21px;
+  white-space: nowrap;
 }
 
 .sleep-result p {
