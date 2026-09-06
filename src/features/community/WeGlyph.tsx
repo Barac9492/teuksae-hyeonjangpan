@@ -18,7 +18,7 @@ export function WeGlyph({ counts, exampleNotice, official }: WeGlyphProps) {
       className="glyph-svg"
       viewBox="0 0 320 190"
       role="img"
-      aria-label={`오늘 함께 예배드리는 ${counts.todayTotal.toLocaleString("ko-KR")}명을 점 ${WE_GLYPH_COUNT}개로 나타낸 '우리' 글자. 점 하나는 약 ${perDot}명. ${official ? "" : exampleNotice}`}
+      aria-label={`오늘 함께 예배드리는 ${counts.todayTotal.toLocaleString("ko-KR")}명을 점 ${WE_GLYPH_COUNT}개로 나타낸 '우리' 글자. 점 하나는 약 ${perDot}명. 속이 빈 점은 온라인. ${official ? "" : exampleNotice}`}
     >
       {people.map((dot) => (
         <circle
@@ -26,7 +26,7 @@ export function WeGlyph({ counts, exampleNotice, official }: WeGlyphProps) {
           className={`glyph-dot ${dot.online ? "online" : "onsite"}`}
           cx={dot.x}
           cy={dot.y}
-          r={3.4}
+          r={dot.online ? 2.9 : 3.4}
           style={{ "--o": dot.order } as CSSProperties}
         />
       ))}
