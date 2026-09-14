@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { RefObject } from 'react';
 import { eventContent, placeOrder, places } from './content';
 import type { PlaceId } from './content';
+import { VenueIllustration } from './VenueIllustration';
 
 interface Props {
   selected: PlaceId;
@@ -42,6 +43,11 @@ export function WorshipGuide({ selected, onSelect, sectionRef }: Props) {
           <div id="wa-access-detail" className="wa-access-detail" hidden={!expanded}>{place.guidance.map((line) => <p key={line}>{line}</p>)}</div>
         </div>
       </div>
+      {(selected === 'songlim' || selected === 'gym') && (
+        <div className="wa-venue-layout">
+          <VenueIllustration key={selected} venue={selected} />
+        </div>
+      )}
     </section>
   );
 }

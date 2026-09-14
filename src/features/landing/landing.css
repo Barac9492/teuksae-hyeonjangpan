@@ -34,6 +34,7 @@
 #woori-apple .wa-hero-line { margin-top: 14px; font-size: clamp(24px, 2.5vw, 36px); line-height: 1.25; font-weight: 690; letter-spacing: -.06em; }
 #woori-apple .wa-schedule { display: inline-flex; margin-top: 18px; padding: 7px 11px; border: 1px solid var(--wa-line); border-radius: 999px; font-size: 12px; color: var(--wa-muted); background: rgba(255,255,255,.8); }
 #woori-apple .wa-status-panel { min-width: 0; }
+#woori-apple .wa-venue-layout { grid-column:1 / -1; min-width:0; width:100%; margin-top:16px; }
 #woori-apple .wa-status-heading { min-height: 34px; display: flex; justify-content: space-between; align-items: center; gap: 18px; font-size: 13px; }
 #woori-apple .wa-status-heading > div { display: flex; align-items: center; gap: 8px; font-weight: 700; }
 #woori-apple .wa-status-heading strong { font-size: 11px; font-weight: 600; color: var(--wa-muted); }
