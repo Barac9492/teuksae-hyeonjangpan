@@ -258,3 +258,15 @@
 @media(prefers-reduced-motion:reduce) {
  #woori-apple *,#woori-apple *::before,#woori-apple *::after { scroll-behavior:auto!important; animation:none!important; transition:none!important; }
 }
+
+/* Local illustration phase, not an operator control. */
+#woori-apple .wa-opening-plan { margin:12px 0; padding:16px; border-radius:14px; background:var(--wa-blue-soft); font-size:14px; }
+#woori-apple .wa-opening-plan strong { display:block; color:var(--wa-blue); }
+#woori-apple .wa-opening-plan p { margin-top:4px; }
+#woori-apple .wa-opening-plan button { border:0; padding:0; min-height:44px; background:transparent; color:var(--wa-blue); font-size:14px; font-weight:650; }
+#woori-apple .wa-phase-demo { display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:12px 0; font-size:12px; }
+#woori-apple .wa-phase-demo > span { width:100%; color:var(--wa-muted); }
+#woori-apple .wa-phase-demo button { min-height:44px; padding:8px 12px; border:1px solid var(--wa-line); border-radius:10px; background:white; font-size:14px; }
+#woori-apple .wa-phase-demo button[aria-pressed="true"] { background:var(--wa-blue); color:white; border-color:var(--wa-blue); }
+#woori-apple .wa-phase-demo small { width:100%; font-size:12px; color:var(--wa-muted); }
+#woori-apple .wa-place-picker span { white-space:normal; overflow:visible; text-overflow:clip; }

@@ -4,6 +4,7 @@ import './venue-illustration.css';
 
 export interface VenueIllustrationProps {
   venue: 'songlim' | 'gym';
+  hallOpen?: boolean;
 }
 
 type ZoneState = 'roomy' | 'mid' | 'congested' | 'unconfirmed';
@@ -127,11 +128,10 @@ function QueueScene() {
 }
 
 /** Venue selection and production status belong to the parent, not this local demo. */
-export function VenueIllustration({ venue }: VenueIllustrationProps) {
+export function VenueIllustration({ venue, hallOpen = false }: VenueIllustrationProps) {
   return (
     <div className={`wvi wvi--${venue}`}>
-      <ZoneScene key={venue} venue={venue} />
-      {venue === 'songlim' && <QueueScene />}
+      {venue === 'songlim' && !hallOpen ? <QueueScene /> : <ZoneScene key={venue} venue={venue} />}
     </div>
   );
 }

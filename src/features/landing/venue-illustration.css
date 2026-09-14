@@ -47,7 +47,7 @@
 #woori-apple .wvi-zone-detail strong { display: block; font-size: 12px; color: #244c77; }
 #woori-apple .wvi .wvi-zone-detail p { margin: 4px 0 0; font-size: 12px; color: #586778; word-break: keep-all; overflow-wrap: anywhere; }
 #woori-apple .wvi .wvi-disclaimer { margin: 12px 0 0; font-size: 12px; color: #626e7b; }
-#woori-apple .wvi--gym { max-width:760px; margin-inline:auto; }
+#woori-apple .wvi { max-width:760px; margin-inline:auto; }
 #woori-apple .wvi-seating--gym .wvi-room { background: linear-gradient(140deg, #f3f8fd, #eaf0f6); }
 #woori-apple .wvi-seating--gym .wvi-zones { gap: 18px 0; }
 #woori-apple .wvi-queue { display: flex; flex-direction: column; }
@@ -71,7 +71,7 @@
 #woori-apple .wvi-demo-control select { width: 100%; min-width: 0; max-width: 100%; min-height: 46px; padding: 10px 8px; border: 1px solid #b6c8dc; border-radius: 10px; background-color: #fff; font: inherit; font-size: 16px; color: #244c77; cursor: pointer; }
 #woori-apple .wvi .wvi-demo-control p { margin: 8px 0 0; color: #626e7b; font-size: 12px; line-height: 1.65; word-break: keep-all; overflow-wrap: anywhere; }
 @media (min-width: 900px) {
-  #woori-apple .wvi--songlim { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 22px; }
+  #woori-apple .wvi--songlim { grid-template-columns: minmax(0, 1fr); }
 }
 @media (hover: hover) {
   #woori-apple .wvi-zone:hover { box-shadow: 0 0 0 3px #0066cc18; border-color: #0066cc; }
