@@ -27,8 +27,9 @@ describe('우리 illustrative landing page', () => {
     expect(screen.getByRole('heading', { level: 1, name: '우리' })).toBeVisible();
     expect(screen.getByRole('complementary', { name: '예배 전 나눔 안내' })).toHaveTextContent('티백과 낱개 포장된 사탕·캔디·과자·비스킷만');
     expect(screen.getByRole('complementary', { name: '예배 전 나눔 안내' })).toHaveTextContent('소비기한과 알레르기');
-    expect(screen.queryByText(/예배 후에도|예배 뒤, 따뜻한 차/)).not.toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: /예배 전에,.*작은 나눔을/ })).toBeVisible();
+    expect(screen.queryByText(/예배 후에도|예배 뒤, 따뜻한 차|자리를 정리/)).not.toBeInTheDocument();
+    expect(screen.getByText('본당 입장을 기다리는 동안, 테이블 위에 포장 간식을 놓아 서로 나눠요.')).toBeVisible();
+    expect(screen.getByRole('heading', { name: /기다리는 동안,.*함께 나눠요/ })).toBeVisible();
     expect(screen.getByRole('heading', { name: /묻고 싶었던 이야기.*함께 읽는 답장/ })).toBeVisible();
     expect(screen.getByRole('heading', { name: /오늘의 새벽을.*함께 남겨요/ })).toBeVisible();
     expect(screen.getByText('오늘 예배 일정 · 추후 안내')).toBeVisible();
@@ -53,14 +54,14 @@ describe('우리 illustrative landing page', () => {
   it('opens a sharing notice and creates a session-only example without categories', async () => {
     const user = userEvent.setup();
     render(<LandingPage />);
-    await user.click(screen.getByRole('button', { name: /예배 전, 티백을 나눠요/ }));
-    expect(screen.getByRole('dialog', { name: '예배 전, 티백을 나눠요' })).toBeVisible();
+    await user.click(screen.getByRole('button', { name: /기다리시는 분들을 위해 티백을 놓아둘게요/ }));
+    expect(screen.getByRole('dialog', { name: '기다리시는 분들을 위해 티백을 놓아둘게요' })).toBeVisible();
     await user.click(screen.getByRole('button', { name: '닫기' }));
     await user.click(screen.getByRole('button', { name: '나눔 예시 만들기' }));
     const form = screen.getByRole('form', { name: '나눔 예시 체험' });
     await user.type(within(form).getByLabelText('안내 제목'), '낱개 포장 사탕을 나눠요');
     await user.type(within(form).getByLabelText('짧은 안내'), '예배 전에 미개봉 사탕을 나누는 가상 안내입니다.');
-    const rules = within(form).getByRole('checkbox', { name: /예배 전, 안내된 낱개 포장 제품만/ });
+    const rules = within(form).getByRole('checkbox', { name: /본당 대기줄의 테이블에서 안내된 낱개 포장 제품만/ });
     expect(rules).toBeRequired();
     await user.click(rules);
     await user.click(within(form).getByRole('button', { name: '화면에만 추가' }));

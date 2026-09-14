@@ -70,15 +70,15 @@ function TableIllustration() {
 
 function SharingGuidelines() {
   return <aside className="wa-sharing-rules" aria-label="예배 전 나눔 안내">
-    <h3>나눔은 예배 전에만 해주세요.</h3>
+    <h3>본당 앞 나눔 테이블 안내</h3>
     <p><strong>티백과 낱개 포장된 사탕·캔디·과자·비스킷만</strong> 나눌 수 있어요.</p>
-    <ul><li>미개봉 제품으로 준비하고, 소비기한과 알레르기 표시를 확인해주세요.</li><li>직접 만든 음식, 포장을 뜯은 간식, 컵에 따른 음료는 나누지 않아요.</li><li>예배가 시작되기 전에 나눔을 마치고 자리를 정리해주세요.</li></ul>
+    <ul><li>미개봉 제품으로 준비하고, 소비기한과 알레르기 표시를 확인해주세요.</li><li>직접 만든 음식, 포장을 뜯은 간식, 컵에 따른 음료는 나누지 않아요.</li></ul>
   </aside>;
 }
 
 const initialNotices = [
-  { id: 1, title: '예배 전, 티백을 나눠요', meta: '예배 전 · 송림본당 · 예시', body: '낱개 밀봉된 티백을 예배 시작 전에 나누는 공지 예시입니다. 뜨거운 물이나 컵 음료는 제공하지 않습니다. 실제 나눔 공지가 아닙니다.' },
-  { id: 2, title: '낱개 포장 비스킷을 준비했어요', meta: '예배 전 · 드림센터 · 예시', body: '미개봉 낱개 포장 비스킷을 예배 전에 나누는 공지 예시입니다. 제품의 알레르기 표시를 확인하고 가져가세요. 실제 나눔 공지가 아닙니다.' },
+  { id: 1, title: '기다리시는 분들을 위해 티백을 놓아둘게요', meta: '본당 입장 대기 · 나눔 테이블 · 예시', body: '본당에 줄 서서 기다리는 분들이 가져가실 수 있도록 테이블 위에 낱개 밀봉된 티백을 놓아두는 공지 예시입니다. 실제 나눔 공지가 아닙니다.' },
+  { id: 2, title: '낱개 포장 비스킷을 준비했어요', meta: '본당 입장 대기 · 나눔 테이블 · 예시', body: '본당 입장을 기다리는 동안 함께 나누려고 테이블 위에 낱개 포장 비스킷을 놓아두는 공지 예시입니다. 제품의 알레르기 표시를 확인해주세요. 실제 나눔 공지가 아닙니다.' },
 ];
 
 export function SharingScene() {
@@ -107,7 +107,7 @@ export function SharingScene() {
 
   return (
     <section className="wa-section wa-sharing" id="wa-sharing" aria-labelledby="wa-sharing-title">
-      <div className="wa-section-copy"><p className="wa-kicker">우리 나눔</p><h2 id="wa-sharing-title">예배 전에,<br />작은 나눔을.</h2><span className="wa-example-label">예시 화면</span><p>예배를 기다리는 동안, 포장된 간식과 반가운 인사를 나눠요.</p></div>
+      <div className="wa-section-copy"><p className="wa-kicker">우리 나눔</p><h2 id="wa-sharing-title">기다리는 동안,<br />함께 나눠요.</h2><span className="wa-example-label">예시 화면</span><p>본당 입장을 기다리는 동안, 테이블 위에 포장 간식을 놓아 서로 나눠요.</p></div>
       <div className="wa-sharing-layout">
         <TableIllustration />
         <div className="wa-notice-column">
@@ -121,7 +121,7 @@ export function SharingScene() {
             <p>실제 이름, 연락처, 개인 사연을 입력하지 마세요. 저장하거나 전송하지 않습니다.</p>
             <label>안내 제목<input name="notice-title" maxLength={36} required /></label>
             <label>짧은 안내<textarea name="notice-body" maxLength={120} required /></label>
-            <label className="wa-rules-confirm"><input type="checkbox" name="sharing-rules" required />예배 전, 안내된 낱개 포장 제품만 나누는 내용입니다.</label>
+            <label className="wa-rules-confirm"><input type="checkbox" name="sharing-rules" required />본당 대기줄의 테이블에서 안내된 낱개 포장 제품만 나누는 내용입니다.</label>
             <button className="wa-primary" type="submit">화면에만 추가</button>
           </form>}
         </div>

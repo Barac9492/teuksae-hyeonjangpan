@@ -58,3 +58,7 @@ The home follows four fixed sections in this exact order:
 - Consolidated mobile CSS under a 1000px breakpoint. First-screen status font: 14px; all four venue buttons end at about 498px from the top at 320/390px viewport widths. No horizontal overflow in either tested layout.
 - Mobile imagery/section spacing is reduced (hero photo 220px, two-column compact gallery); 16px form inputs avoid small-input zoom, main buttons are at least 48px high. Tested browser viewport layouts, not physical iOS/Android devices.
 - Build, lint and 67/67 tests pass after revision. No remote push or deployment performed.
+
+## Queue-table clarification (2026-09-14)
+
+The actual sharing setting is the table where people wait in line for the main sanctuary. Both illustrative notices now use that setting, not Dream Center or post-service fellowship. Removed the instruction to finish sharing and clean up seats. Retained only packaged-product hygiene/allergen guidance. No layout or backend changes in this revision.
