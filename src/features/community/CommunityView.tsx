@@ -20,7 +20,7 @@ import {
 } from "./shareMessages";
 import { formatDuration, planDriverNight } from "./sleepGuard";
 import { drawWeCard, shareWeCard } from "./weCard";
-import { WeGlyph } from "./WeGlyph";
+import { WeGlyph } from "./WeGlyphView";
 import { peoplePerDot, WE_GLYPH_COUNT } from "./weGlyph";
 
 interface CommunityViewProps {
