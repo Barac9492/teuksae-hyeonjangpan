@@ -57,37 +57,28 @@ export function AccessibleDialog({ open, title, onClose, children }: DialogProps
 }
 
 function TableIllustration() {
-  return (
-    <svg className="wa-table-art" viewBox="0 0 760 460" role="img" aria-labelledby="wa-table-art-title wa-table-art-desc">
-      <title id="wa-table-art-title">예배 뒤 나눔 테이블</title>
-      <desc id="wa-table-art-desc">따뜻한 차가 담긴 컵과 보온병, 접힌 안내지가 놓인 테이블 일러스트</desc>
-      <defs>
-        <linearGradient id="table-light" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#e8f2ff"/><stop offset="1" stopColor="#b8d8ff"/></linearGradient>
-        <linearGradient id="steel" x1="0" y1="0" x2="1" y2="0"><stop stopColor="#292b30"/><stop offset=".5" stopColor="#62666c"/><stop offset="1" stopColor="#202226"/></linearGradient>
-      </defs>
-      <rect width="760" height="460" rx="38" fill="url(#table-light)"/>
-      <circle cx="635" cy="72" r="128" fill="#fff" opacity=".45"/>
-      <path d="M0 314 C188 275 451 301 760 245 V460 H0Z" fill="#f7f7f8"/>
-      <path d="M398 105h120c19 0 34 15 34 34v175H364V139c0-19 15-34 34-34Z" fill="url(#steel)"/>
-      <rect x="392" y="78" width="132" height="41" rx="16" fill="#18191c"/>
-      <path d="M552 159h24c39 0 61 24 61 58 0 36-25 59-70 59h-15" fill="none" stroke="#44484e" strokeWidth="18"/>
-      <ellipse cx="458" cy="316" rx="116" ry="22" fill="#99a4af" opacity=".25"/>
-      <g transform="translate(150 213)">
-        <ellipse cx="92" cy="143" rx="105" ry="19" fill="#a2a9b0" opacity=".2"/>
-        <path d="M16 23h135l-12 109c-2 15-14 25-29 25H55c-15 0-28-11-30-26Z" fill="#fff"/>
-        <path d="M152 45h19c43 0 44 70 2 71h-27" fill="none" stroke="#fff" strokeWidth="15"/>
-        <ellipse cx="84" cy="25" rx="68" ry="18" fill="#d9e1e9"/>
-        <ellipse cx="84" cy="25" rx="54" ry="11" fill="#9f6236"/>
-        <path d="M63 1c-14-23 17-28 4-52M100 1c-14-23 17-28 4-52" fill="none" stroke="#fff" strokeWidth="6" strokeLinecap="round" opacity=".75"/>
-      </g>
-      <g transform="rotate(-7 620 350)"><rect x="541" y="293" width="145" height="112" rx="5" fill="#fff"/><path d="M565 328h85M565 346h68M565 364h76" stroke="#8ca0b5" strokeWidth="6" strokeLinecap="round"/><circle cx="657" cy="315" r="8" fill="#0071e3"/></g>
-    </svg>
-  );
+  return <svg className="wa-table-art" viewBox="0 0 760 420" role="img" aria-labelledby="wa-table-art-title">
+    <title id="wa-table-art-title">예배 전 나눌 수 있는 낱개 포장 티백, 사탕, 비스킷 일러스트</title>
+    <defs><linearGradient id="packet-bg" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#edf6ff"/><stop offset="1" stopColor="#c5dfff"/></linearGradient></defs>
+    <rect width="760" height="420" rx="30" fill="url(#packet-bg)"/>
+    <ellipse cx="388" cy="342" rx="272" ry="29" fill="#526f8b" opacity=".10"/>
+    <g transform="translate(134 66) rotate(-9 90 126)"><rect width="182" height="255" rx="12" fill="#fff" stroke="#9bb3c8" strokeWidth="2"/><path d="M15 18h152M15 237h152" stroke="#d3dde5" strokeWidth="6" strokeDasharray="4 4"/><path d="M91 60v36l-30 20v62h61v-62L91 96" fill="#edf3e7" stroke="#6d8b61" strokeWidth="2"/><path d="M92 130c-23-5-23 22 0 25 22-6 22-26 0-25Z" fill="#849f77"/><text x="91" y="210" textAnchor="middle" fill="#355b41" fontSize="22" fontFamily="sans-serif">티백</text></g>
+    <g transform="translate(370 102) rotate(10 116 108)"><path d="M0 0h236l-5 12 5 12-5 12v178l5 12-5 12 5 12H0l5-12-5-12 5-12V36L0 24l5-12Z" fill="#faf0da" stroke="#d6b976" strokeWidth="2"/><rect x="17" y="24" width="202" height="200" rx="9" fill="#fffbf2"/><rect x="43" y="60" width="145" height="95" rx="13" fill="#d5a962"/><path d="M55 73h120v69H55Z" fill="none" stroke="#efd096" strokeWidth="3" strokeDasharray="4 7"/><g fill="#aa793d"><circle cx="79" cy="92" r="3"/><circle cx="117" cy="92" r="3"/><circle cx="153" cy="92" r="3"/><circle cx="79" cy="121" r="3"/><circle cx="117" cy="121" r="3"/><circle cx="153" cy="121" r="3"/></g><text x="117" y="198" textAnchor="middle" fill="#73582c" fontSize="21" fontFamily="sans-serif">낱개 포장 비스킷</text></g>
+    <g transform="translate(290 290) rotate(-7)"><path d="M0 6 35 19v40L0 74 8 40Z" fill="#91bbe5"/><path d="m151 6-35 13v40l35 15-8-34Z" fill="#91bbe5"/><rect x="29" y="12" width="96" height="55" rx="20" fill="#fff" stroke="#699acb" strokeWidth="2"/><text x="77" y="48" textAnchor="middle" fill="#386b9c" fontSize="19" fontFamily="sans-serif">사탕</text></g>
+  </svg>;
+}
+
+function SharingGuidelines() {
+  return <aside className="wa-sharing-rules" aria-label="예배 전 나눔 안내">
+    <h3>나눔은 예배 전에만 해주세요.</h3>
+    <p><strong>티백과 낱개 포장된 사탕·캔디·과자·비스킷만</strong> 나눌 수 있어요.</p>
+    <ul><li>미개봉 제품으로 준비하고, 소비기한과 알레르기 표시를 확인해주세요.</li><li>직접 만든 음식, 포장을 뜯은 간식, 컵에 따른 음료는 나누지 않아요.</li><li>예배가 시작되기 전에 나눔을 마치고 자리를 정리해주세요.</li></ul>
+  </aside>;
 }
 
 const initialNotices = [
-  { id: 1, title: '예배 뒤, 따뜻한 차를 나눠요', meta: '송림본당 로비 · 예시', body: '예배 후 로비 테이블에 따뜻한 차가 준비되어 있다고 가정한 안내 예시입니다. 실제 운영 안내가 아닙니다.' },
-  { id: 2, title: '처음 오신 분과 함께 앉아요', meta: '드림센터 · 예시', body: '처음 참여하는 분이 혼자 머물지 않도록 옆자리를 내어드리는 상황을 담은 예시입니다.' },
+  { id: 1, title: '예배 전, 티백을 나눠요', meta: '예배 전 · 송림본당 · 예시', body: '낱개 밀봉된 티백을 예배 시작 전에 나누는 공지 예시입니다. 뜨거운 물이나 컵 음료는 제공하지 않습니다. 실제 나눔 공지가 아닙니다.' },
+  { id: 2, title: '낱개 포장 비스킷을 준비했어요', meta: '예배 전 · 드림센터 · 예시', body: '미개봉 낱개 포장 비스킷을 예배 전에 나누는 공지 예시입니다. 제품의 알레르기 표시를 확인하고 가져가세요. 실제 나눔 공지가 아닙니다.' },
 ];
 
 export function SharingScene() {
@@ -116,10 +107,11 @@ export function SharingScene() {
 
   return (
     <section className="wa-section wa-sharing" id="wa-sharing" aria-labelledby="wa-sharing-title">
-      <div className="wa-section-copy"><p className="wa-kicker">우리 나눔</p><h2 id="wa-sharing-title">예배 후에도, 함께 나눠요.</h2><span className="wa-example-label">예시 화면</span><p>따뜻한 차 한 잔과 반가운 인사처럼, 예배 뒤의 작은 나눔을 전합니다.</p></div>
+      <div className="wa-section-copy"><p className="wa-kicker">우리 나눔</p><h2 id="wa-sharing-title">예배 전에,<br />작은 나눔을.</h2><span className="wa-example-label">예시 화면</span><p>예배를 기다리는 동안, 포장된 간식과 반가운 인사를 나눠요.</p></div>
       <div className="wa-sharing-layout">
         <TableIllustration />
         <div className="wa-notice-column">
+          <SharingGuidelines />
           <div className="wa-list-heading"><span>나눔 안내</span><span>모두 예시</span></div>
           {notices.map((notice) => <button type="button" className="wa-notice" key={notice.id} onClick={() => setOpened(notice)}><span>{notice.meta}</span><strong>{notice.title}</strong><i aria-hidden="true">보기</i></button>)}
           <div className="wa-inline-actions"><button type="button" className="wa-primary" onClick={() => { setShowForm(true); setSaved(false); }}>나눔 예시 만들기</button>{notices.length > initialNotices.length && <button type="button" className="wa-link-button" onClick={reset}>예시 초기화</button>}</div>
@@ -129,6 +121,7 @@ export function SharingScene() {
             <p>실제 이름, 연락처, 개인 사연을 입력하지 마세요. 저장하거나 전송하지 않습니다.</p>
             <label>안내 제목<input name="notice-title" maxLength={36} required /></label>
             <label>짧은 안내<textarea name="notice-body" maxLength={120} required /></label>
+            <label className="wa-rules-confirm"><input type="checkbox" name="sharing-rules" required />예배 전, 안내된 낱개 포장 제품만 나누는 내용입니다.</label>
             <button className="wa-primary" type="submit">화면에만 추가</button>
           </form>}
         </div>

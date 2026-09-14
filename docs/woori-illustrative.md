@@ -48,3 +48,13 @@ The home follows four fixed sections in this exact order:
 - Independent review checked sample labeling, local-only boundaries and modal focus. Same-photo reselection bug fixed with a file input reset and regression assertion.
 - A pre-existing macOS case-insensitive module resolution collision between WeGlyph.tsx and weGlyph.ts was corrected by renaming only the component file to WeGlyphView.tsx and updating its import. No legacy behavior or data was changed.
 - Illustrative UI approval is separate from church approval or live backend readiness.
+
+## User revision: pre-service packaged sharing and mobile-first (2026-09-14)
+
+- Sharing is explicitly BEFORE worship only. Examples now use individually sealed tea bags and biscuits, not served drinks or post-service fellowship.
+- Visible guidelines allow tea bags and individually wrapped candies/snacks/biscuits only, with unopened packaging, use-by dates and allergen labels checked. Homemade/opened foods and poured beverages are excluded. Finish and tidy up before worship starts.
+- The local sample-notice form requires acknowledging these guidelines. This is an illustrative interaction, not automated product inspection.
+- Artwork depicts sealed tea bags, wrapped candy and packaged biscuits.
+- Consolidated mobile CSS under a 1000px breakpoint. First-screen status font: 14px; all four venue buttons end at about 498px from the top at 320/390px viewport widths. No horizontal overflow in either tested layout.
+- Mobile imagery/section spacing is reduced (hero photo 220px, two-column compact gallery); 16px form inputs avoid small-input zoom, main buttons are at least 48px high. Tested browser viewport layouts, not physical iOS/Android devices.
+- Build, lint and 67/67 tests pass after revision. No remote push or deployment performed.

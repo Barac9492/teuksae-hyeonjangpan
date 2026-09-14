@@ -25,7 +25,10 @@ describe('우리 illustrative landing page', () => {
     const nav = screen.getByRole('navigation', { name: '우리 메뉴' });
     expect(within(nav).getAllByRole('link').map((link) => link.textContent)).toEqual(['우리 예배', '우리 나눔', '우리 엽서', '우리 사진']);
     expect(screen.getByRole('heading', { level: 1, name: '우리' })).toBeVisible();
-    expect(screen.getByRole('heading', { name: '예배 후에도, 함께 나눠요.' })).toBeVisible();
+    expect(screen.getByRole('complementary', { name: '예배 전 나눔 안내' })).toHaveTextContent('티백과 낱개 포장된 사탕·캔디·과자·비스킷만');
+    expect(screen.getByRole('complementary', { name: '예배 전 나눔 안내' })).toHaveTextContent('소비기한과 알레르기');
+    expect(screen.queryByText(/예배 후에도|예배 뒤, 따뜻한 차/)).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /예배 전에,.*작은 나눔을/ })).toBeVisible();
     expect(screen.getByRole('heading', { name: /묻고 싶었던 이야기.*함께 읽는 답장/ })).toBeVisible();
     expect(screen.getByRole('heading', { name: /오늘의 새벽을.*함께 남겨요/ })).toBeVisible();
     expect(screen.getByText('오늘 예배 일정 · 추후 안내')).toBeVisible();
@@ -50,15 +53,18 @@ describe('우리 illustrative landing page', () => {
   it('opens a sharing notice and creates a session-only example without categories', async () => {
     const user = userEvent.setup();
     render(<LandingPage />);
-    await user.click(screen.getByRole('button', { name: /예배 뒤, 따뜻한 차를 나눠요/ }));
-    expect(screen.getByRole('dialog', { name: '예배 뒤, 따뜻한 차를 나눠요' })).toBeVisible();
+    await user.click(screen.getByRole('button', { name: /예배 전, 티백을 나눠요/ }));
+    expect(screen.getByRole('dialog', { name: '예배 전, 티백을 나눠요' })).toBeVisible();
     await user.click(screen.getByRole('button', { name: '닫기' }));
     await user.click(screen.getByRole('button', { name: '나눔 예시 만들기' }));
     const form = screen.getByRole('form', { name: '나눔 예시 체험' });
-    await user.type(within(form).getByLabelText('안내 제목'), '우산을 함께 써요');
-    await user.type(within(form).getByLabelText('짧은 안내'), '비가 오는 날 입구에서 우산을 나누는 가상 안내입니다.');
+    await user.type(within(form).getByLabelText('안내 제목'), '낱개 포장 사탕을 나눠요');
+    await user.type(within(form).getByLabelText('짧은 안내'), '예배 전에 미개봉 사탕을 나누는 가상 안내입니다.');
+    const rules = within(form).getByRole('checkbox', { name: /예배 전, 안내된 낱개 포장 제품만/ });
+    expect(rules).toBeRequired();
+    await user.click(rules);
     await user.click(within(form).getByRole('button', { name: '화면에만 추가' }));
-    expect(screen.getByRole('button', { name: /우산을 함께 써요/ })).toBeVisible();
+    expect(screen.getByRole('button', { name: /낱개 포장 사탕을 나눠요/ })).toBeVisible();
     expect(screen.getByRole('status')).toHaveTextContent('전송되지 않았습니다');
     expect(screen.queryByRole('button', { name: /카풀|음식|물품/ })).not.toBeInTheDocument();
   });
