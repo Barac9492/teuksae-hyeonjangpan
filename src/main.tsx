@@ -1,6 +1,8 @@
-const bootstrapModule = /^\/app(?:\/|$)/.test(window.location.pathname)
-  ? import('./legacy-bootstrap')
-  : import('./landing-bootstrap');
+const bootstrapModule = /^\/admin(?:\/|$)/.test(window.location.pathname)
+  ? import('./admin-bootstrap')
+  : /^\/app(?:\/|$)/.test(window.location.pathname)
+    ? import('./legacy-bootstrap')
+    : import('./landing-bootstrap');
 
 void bootstrapModule.then(({ bootstrap }) => bootstrap()).catch((error: unknown) => {
   console.error('Unable to start the application', error);
