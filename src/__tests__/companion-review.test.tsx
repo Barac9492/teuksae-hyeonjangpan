@@ -3,12 +3,15 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { CompanionApp } from '../features/companion';
 
+/** First service day, 03:52 KST: the moment the live venue status matters most. */
+const DAWN = new Date('2026-10-05T03:52:00+09:00');
+
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 
 describe('Companion independent regression review', () => {
   it('retains a prayer draft when checking parking but shows only one accessible panel', async () => {
     const user = userEvent.setup();
-    render(<CompanionApp />);
+    render(<CompanionApp now={DAWN} />);
     await user.click(screen.getByRole('tab', { name: '기도' }));
     await user.type(screen.getByLabelText('어떤 마음으로 기도하고 있나요?'), '입력 중인 마음');
     await user.click(screen.getByRole('tab', { name: '주차' }));
@@ -22,7 +25,7 @@ describe('Companion independent regression review', () => {
   it('keeps story composition collapsed and preserves its draft across main tabs', async () => {
     const user = userEvent.setup();
     const fetchSpy = vi.spyOn(globalThis, 'fetch');
-    render(<CompanionApp />);
+    render(<CompanionApp now={DAWN} />);
     await user.click(screen.getByRole('tab', { name: '나눔' }));
     expect(screen.queryByRole('textbox', { name: '이야기' })).not.toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: /한마디 남기기/ }));
@@ -38,7 +41,7 @@ describe('Companion independent regression review', () => {
 
   it('does not carry Songrim parking-full state over to Dream Center', async () => {
     const user = userEvent.setup();
-    render(<CompanionApp />);
+    render(<CompanionApp now={DAWN} />);
     await user.click(screen.getByRole('button', { name: '상황 바꿔보기' }));
     const modal = screen.getByRole('dialog', { name: '상황 바꿔보기' });
     await user.click(within(modal).getByRole('checkbox', { name: /선택 장소의 모든 주차 공간 만차/ }));
@@ -57,7 +60,7 @@ describe('Companion independent regression review', () => {
     const revoke = vi.fn();
     Object.defineProperty(URL, 'createObjectURL', { configurable: true, value: create });
     Object.defineProperty(URL, 'revokeObjectURL', { configurable: true, value: revoke });
-    const view = render(<CompanionApp />);
+    const view = render(<CompanionApp now={DAWN} />);
     await user.click(screen.getByRole('tab', { name: '사진' }));
     const input = screen.getByLabelText(/내 사진으로 미리보기/);
     const oversized = new File(['x'], 'large.jpg', { type: 'image/jpeg' });

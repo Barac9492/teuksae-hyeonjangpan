@@ -3,6 +3,9 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { CompanionApp } from '../features/companion';
 
+/** First service day, 03:52 KST: the moment the live venue status matters most. */
+const DAWN = new Date('2026-10-05T03:52:00+09:00');
+
 afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
@@ -24,7 +27,7 @@ async function chooseTab(user: ReturnType<typeof userEvent.setup>, name: string)
 describe('CompanionApp', () => {
   it('has exactly five keyboard tabs and no postcard tab or panel', async () => {
     const user = userEvent.setup();
-    render(<CompanionApp />);
+    render(<CompanionApp now={DAWN} />);
     const tablist = screen.getByRole('tablist', { name: '주요 메뉴' });
     const tabLabels = within(tablist).getAllByRole('tab').map((tab) => tab.textContent);
     expect(tabLabels).toEqual(['예배', '주차', '기도', '나눔', '사진']);
@@ -38,7 +41,7 @@ describe('CompanionApp', () => {
 
   it('previews every Songrim opening stage, combines hall floors, and distinguishes Dream floors', async () => {
     const user = userEvent.setup();
-    render(<CompanionApp />);
+    render(<CompanionApp now={DAWN} />);
     const expected = [
       '학교 밖에서 기다려주세요',
       '학교 안에서 대기해요',
@@ -63,7 +66,7 @@ describe('CompanionApp', () => {
 
   it('fails closed for stale status and can preview all parking full without a live claim', async () => {
     const user = userEvent.setup();
-    render(<CompanionApp />);
+    render(<CompanionApp now={DAWN} />);
     let dialog = await openSettings(user);
     await user.click(within(dialog).getByRole('checkbox', { name: '현황 정보가 오래된 상황' }));
     await user.click(within(dialog).getByRole('button', { name: '선택한 상황 보기' }));
@@ -75,12 +78,12 @@ describe('CompanionApp', () => {
     await user.click(within(dialog).getByRole('button', { name: '선택한 상황 보기' }));
     await chooseTab(user, '주차');
     expect(screen.getByRole('heading', { name: '모든 주차 공간이 만차예요' })).toBeVisible();
-    expect(within(screen.getByRole('tabpanel', { name: '주차' })).getByText(/디자인 예시/)).toBeVisible();
+    expect(within(screen.getByRole('tabpanel', { name: '주차' })).getAllByText(/예시/)[0]).toBeVisible();
   });
 
   it('keeps Songrim snack sharing outside before school opens and gates indoor hot water on gym opening', async () => {
     const user = userEvent.setup();
-    render(<CompanionApp />);
+    render(<CompanionApp now={DAWN} />);
     await chooseTab(user, '나눔');
     expect(screen.getByText('송림본당만')).toBeVisible();
     expect(screen.getByText('학교 개방 전 · 학교 밖 대기 장소')).toBeVisible();
@@ -92,7 +95,7 @@ describe('CompanionApp', () => {
 
   it('shows first-day preparation and subsequent voluntary packaged snacks without an attendance obligation', async () => {
     const user = userEvent.setup();
-    render(<CompanionApp />);
+    render(<CompanionApp now={DAWN} />);
     await chooseTab(user, '나눔');
     expect(screen.getByText('1청년부 3팀이 간식을 준비합니다.')).toBeVisible();
     const dialog = await openSettings(user);
@@ -105,7 +108,7 @@ describe('CompanionApp', () => {
 
   it('adds only session preview stories, renders text safely, limits recent cards, and supports delete and no-server hide', async () => {
     const user = userEvent.setup();
-    render(<CompanionApp />);
+    render(<CompanionApp now={DAWN} />);
     await chooseTab(user, '나눔');
     expect(screen.getByText('이야기를 남겨보세요. 지금은 내 화면에서만 확인할 수 있어요.')).toBeVisible();
     await user.click(screen.getByRole('button', { name: /한마디 남기기/ }));
@@ -135,7 +138,7 @@ describe('CompanionApp', () => {
   it('keeps prayer private by default, previews locally, and never calls fetch', async () => {
     const user = userEvent.setup();
     const fetchSpy = vi.spyOn(globalThis, 'fetch');
-    render(<CompanionApp />);
+    render(<CompanionApp now={DAWN} />);
     await chooseTab(user, '기도');
     const sharing = screen.getByRole('checkbox', { name: /함께 읽는 기도로 나누는 의향/ });
     expect(sharing).not.toBeChecked();
@@ -154,7 +157,7 @@ describe('CompanionApp', () => {
     const revokeObjectURL = vi.fn();
     Object.defineProperty(URL, 'createObjectURL', { configurable: true, value: createObjectURL });
     Object.defineProperty(URL, 'revokeObjectURL', { configurable: true, value: revokeObjectURL });
-    const view = render(<CompanionApp />);
+    const view = render(<CompanionApp now={DAWN} />);
     await chooseTab(user, '사진');
     const input = screen.getByLabelText(/내 사진으로 미리보기/);
     fireEvent.change(input, { target: { files: [new File(['bad'], 'bad.gif', { type: 'image/gif' })] } });

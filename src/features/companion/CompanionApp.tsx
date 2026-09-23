@@ -2,6 +2,9 @@ import { useEffect, useId, useRef, useState } from 'react';
 import type { ChangeEvent, FormEvent, KeyboardEvent, ReactNode } from 'react';
 import crownImage from './assets/crown.jpg';
 import posterImage from './assets/poster.jpg';
+import { DayStrip, Freshness, NowCard } from './NowCard';
+import type { Moment, PreviewMomentId } from './moment';
+import { dayLabel, describeDuration, getMoment, PREVIEW_MOMENTS, previewDate } from './moment';
 
 const tabs = [
   { id: 'worship', label: '예배' },
@@ -121,7 +124,7 @@ function StatusRow({ name, extra, value, tone = 'neutral' }: { name: string; ext
 
 function SongrimWorship({ stage, stale }: { stage: Stage; stale: boolean }) {
   if (stale) {
-    return <><StatusLead tone="neutral" label="정보 갱신이 필요한 상황 · 디자인 예시" title="현장 확인을 기다리고 있어요">이전 상태는 표시하지 않습니다. 입장과 주차는 현장 안내요원에게 확인해주세요.</StatusLead><StatusRow name="학교 출입" value="확인 중" /><StatusRow name="본당·체육관" value="확인 중" /></>;
+    return <><StatusLead tone="neutral" label="확인 중 · 예시" title="현장 확인을 기다리고 있어요">이전 상태는 표시하지 않습니다. 입장과 주차는 현장 안내요원에게 확인해주세요.</StatusLead><StatusRow name="학교 출입" value="확인 중" /><StatusRow name="본당·체육관" value="확인 중" /></>;
   }
   const leads = [
     ['학교 밖에서 기다려주세요', '학교와 주차장 모두 아직 들어갈 수 없어요.', 'neutral'],
@@ -132,32 +135,47 @@ function SongrimWorship({ stage, stale }: { stage: Stage; stale: boolean }) {
   ] as const;
   const lead = leads[stage];
   return <>
-    <StatusLead tone={lead[2]} label="현재 상황 · 디자인 예시" title={lead[0]}>{lead[1]}</StatusLead>
+    <StatusLead tone={lead[2]} label="지금 가장 좋은 선택 · 예시" title={lead[0]}>{lead[1]}</StatusLead>
     <StatusRow name="학교 출입" value={stage === 0 ? '개방 전' : '개방'} tone={stage === 0 ? 'neutral' : 'good'} />
     <StatusRow name="본당" extra="1·2층 통합 안내" value={stage < 3 ? '입장 전' : stage === 3 ? '입장 중' : '입장 마감'} tone={stage === 4 ? 'stop' : stage === 3 ? 'good' : 'neutral'} />
     <StatusRow name="체육관" value={stage < 2 ? '개방 전' : stage === 4 ? '혼잡' : '개방 · 여유'} tone={stage < 2 ? 'neutral' : stage === 4 ? 'warn' : 'good'} />
   </>;
 }
 
-function WorshipPanel({ venue, setVenue, stage, stale, eventDay, goToParking, goToSnack, showRoute }: { venue: Venue; setVenue: (venue: Venue) => void; stage: Stage; stale: boolean; eventDay: number; goToParking: () => void; goToSnack: () => void; showRoute: () => void }) {
+type WorshipProps = { venue: Venue; setVenue: (venue: Venue) => void; stage: Stage; stale: boolean; moment: Moment; now: Date; goToParking: () => void; goToSnack: () => void; showRoute: () => void; nowActions: Parameters<typeof NowCard>[0]['actions'] };
+
+function VenueStatus({ venue, setVenue, stage, stale, moment, now, goToParking, goToSnack, showRoute }: Omit<WorshipProps, 'nowActions'>) {
+  return <div className="tc-section">
+    {moment.phase === 'dawn' && <p className="tc-dawn-eyebrow"><span>{dayLabel(moment.dayIndex)} 새벽</span><b>예배까지 {describeDuration(moment.minutesToService)}</b></p>}
+    {moment.phase === 'eve' && <h3 className="tc-section-title">밤부터 기다리는 분들을 위한 현장 상황</h3>}
+    <VenueSwitch venue={venue} onChange={setVenue} label="예배 장소" />
+    {venue === 'songrim' ? <SongrimWorship stage={stage} stale={stale} /> : stale ? <><StatusLead tone="neutral" label="확인 중 · 예시" title="현장 확인을 기다리고 있어요">이전 층별 상태는 표시하지 않습니다. 현장 안내를 확인해주세요.</StatusLead><StatusRow name="3·7·11층" value="확인 중" /></> : <><StatusLead label="드림센터 예배 공간 · 예시" title="3층은 자리가 찼어요">7층은 붐벼요. 11층이 열렸는지는 현장 안내요원에게 확인해주세요.</StatusLead><StatusRow name="3층" value="만석" tone="stop" /><StatusRow name="7층" value="혼잡" tone="warn" /><StatusRow name="11층" value="개방 확인 중" /></>}
+    <Freshness now={now} stale={stale} team={venue === 'songrim' ? '송림 안내팀' : '드림센터 안내팀'} />
+    <div className="tc-mini-actions"><button type="button" onClick={goToParking}>주차 안내 <span aria-hidden="true">→</span></button><button type="button" onClick={showRoute}>{venue === 'songrim' ? '대기·입장 흐름' : '장소 안내'} <span aria-hidden="true">→</span></button></div>
+    {venue === 'songrim' && stage === 0 && !stale && <button className="tc-snack-teaser" type="button" onClick={goToSnack}><span><small>학교 밖 대기 장소 · 간식 나눔 안내</small><strong>{moment.dayIndex === 0 ? '10월 5일, 1청년부 3팀이 준비합니다' : '10월 6일부터, 원하는 분들이 자율적으로 나눠요'}</strong></span><span aria-hidden="true">→</span></button>}
+  </div>;
+}
+
+function WorshipPanel(props: WorshipProps) {
+  const { moment, now, venue, goToSnack, nowActions } = props;
+  const compact = moment.phase !== 'pre' && moment.phase !== 'post';
+  const showStatus = moment.phase === 'dawn' || moment.phase === 'eve';
   return <section id="tc-panel-worship" className="tc-panel" role="tabpanel" aria-labelledby="tc-tab-worship">
-    <div className="tc-hero"><div className="tc-hero__copy"><span className="tc-eyebrow">2026 가을특별새벽부흥회</span><h1>하나님<br />마음에<br />합한 사람</h1><span className="tc-hero__reference">사도행전 13:22</span></div><img src={crownImage} alt="왕관을 조심스럽게 받쳐 든 두 손" /></div>
-    <div className="tc-event-strip"><div><strong>10.05 <small>월</small> ~ 10.10 <small>토</small></strong><span>학교·예배 공간 개방 시각은 아직 정해지지 않았어요.</span></div><div className="tc-event-time"><span>예배 시작</span><strong>04:40</strong></div></div>
-    <div className="tc-section"><VenueSwitch venue={venue} onChange={setVenue} label="예배 장소" />
-      {venue === 'songrim' ? <SongrimWorship stage={stage} stale={stale} /> : stale ? <><StatusLead tone="neutral" label="정보 갱신이 필요한 상황 · 디자인 예시" title="현장 확인을 기다리고 있어요">이전 층별 상태는 표시하지 않습니다. 현장 안내를 확인해주세요.</StatusLead><StatusRow name="3·7·11층" value="확인 중" /></> : <><StatusLead label="드림센터 예배 공간 · 디자인 예시" title="층별 안내를 확인해주세요">3층, 7층, 11층 예배 공간이 있습니다. 실제 개방과 혼잡은 현장 안내에 따라주세요.</StatusLead><StatusRow name="3층" value="만석" tone="stop" /><StatusRow name="7층" value="혼잡" tone="warn" /><StatusRow name="11층" value="개방 확인 중" /></>}
-      <div className="tc-mini-actions"><button type="button" onClick={goToParking}>주차 안내 <span aria-hidden="true">↗</span></button><button type="button" onClick={showRoute}>{venue === 'songrim' ? '대기·입장 흐름' : '장소 안내'} <span aria-hidden="true">↗</span></button></div>
-      <p className="tc-panel-note">현황은 모두 디자인 검토용 예시입니다. 운영 시스템과 연결되지 않았고 실제 현장 상태를 뜻하지 않습니다.</p>
-      {venue === 'songrim' && stage === 0 && !stale && <button className="tc-snack-teaser" type="button" onClick={goToSnack}><span><small>학교 밖 대기 장소 · 간식 나눔 안내</small><strong>{eventDay === 0 ? '10월 5일, 1청년부 3팀이 준비합니다' : '10월 6일부터, 원하는 분들이 자율적으로 나눠요'}</strong></span><span aria-hidden="true">→</span></button>}
-    </div>
+    {compact ? <div className="tc-hero tc-hero--compact"><div className="tc-hero__copy"><span className="tc-eyebrow">2026 가을특별새벽부흥회 · 사도행전 13:22</span><h1>하나님 마음에 합한 사람</h1></div></div> : <div className="tc-hero"><div className="tc-hero__copy"><span className="tc-eyebrow">2026 가을특별새벽부흥회</span><h1>하나님<br />마음에<br />합한 사람</h1><span className="tc-hero__reference">사도행전 13:22</span></div><img src={crownImage} alt="왕관을 조심스럽게 받쳐 든 두 손" /></div>}
+    <div className="tc-event-strip"><DayStrip moment={moment} /><div className="tc-event-time"><span>예배 시작</span><strong>04:40</strong></div></div>
+    {moment.phase !== 'dawn' && <div className="tc-section"><NowCard moment={moment} now={now} isSongrim={venue === 'songrim'} goToSnack={goToSnack} actions={nowActions} /></div>}
+    {showStatus && <VenueStatus {...props} />}
+    {moment.phase === 'service' && <details className="tc-section tc-later"><summary>현장 상황 보기 <span aria-hidden="true">＋</span></summary><VenueStatus {...props} /></details>}
   </section>;
 }
 
-function ParkingPanel({ venue, setVenue, stage, stale, allFull, goToWorship }: { venue: Venue; setVenue: (venue: Venue) => void; stage: Stage; stale: boolean; allFull: boolean; goToWorship: () => void }) {
+function ParkingPanel({ venue, setVenue, stage, stale, allFull, goToWorship, moment, now }: { venue: Venue; setVenue: (venue: Venue) => void; stage: Stage; stale: boolean; allFull: boolean; goToWorship: () => void; moment: Moment; now: Date }) {
+  const offSeason = moment.phase === 'pre' || moment.phase === 'post';
   const closed = venue === 'songrim' && stage === 0;
-  return <section id="tc-panel-parking" className="tc-panel" role="tabpanel" aria-labelledby="tc-tab-parking"><PageHeading eyebrow="도착하기 전에" title="주차 안내">진입 가능 여부와 주차 공간을 확인해요.</PageHeading><div className="tc-section tc-section--topless"><VenueSwitch venue={venue} onChange={setVenue} label="주차 장소" />
-    {stale ? <StatusLead tone="neutral" label="갱신 필요 · 디자인 예시" title="주차 현황을 확인 중이에요">오래된 정보로 진입을 안내하지 않습니다. 현장 주차요원의 안내를 따라주세요.</StatusLead> : closed ? <><StatusLead tone="neutral" label="송림본당 주차 · 디자인 예시" title="아직 차량이 들어갈 수 없어요">학교 출입문 개방 전입니다. 주차 공간이 있어도 진입할 수 없어요.</StatusLead><StatusRow name="학교 차량 출입" value="진입 전" /><StatusRow name="주차 공간" value="개방 후 안내" /></> : allFull ? <><StatusLead tone="red" label={`${venue === 'songrim' ? '송림본당' : '드림센터'} 주차 · 디자인 예시`} title="모든 주차 공간이 만차예요">추가 진입은 현장 주차요원의 안내를 따라주세요.</StatusLead><div className="tc-quiet"><strong>대체 주차 장소는 확인 중입니다.</strong><p>교회가 확인한 장소·이용 시간·진입 방법이 정해지면 안내합니다. 임의 주차는 피해주세요.</p></div></> : venue === 'songrim' ? <><StatusLead tone="amber" label="송림본당 주차 · 디자인 예시" title="교내 주차장이 혼잡해요">학교 안에서는 대기줄과 보행자 동선을 주의해주세요.</StatusLead><StatusRow name="학교 차량 출입" value="진입 가능" tone="good" /><StatusRow name="주차 공간" value="혼잡" tone="warn" /></> : <><StatusLead label="드림센터 주차 · 디자인 예시" title="지하층별 주차 현황을 확인해요">실제 이동할 층은 주차요원의 안내를 따라주세요.</StatusLead><div className="tc-floor-table">{[1, 2, 3, 4, 5].map((floor) => <div className="tc-floor-row" key={floor}><span><b>B{floor}</b><small>지하 {floor}층</small></span><span className={`tc-status-value tc-status-value--${floor <= 2 ? 'stop' : floor === 3 ? 'warn' : 'good'}`}>{floor <= 2 ? '만차' : floor === 3 ? '혼잡' : '주차 가능'}</span></div>)}</div></>}
+  return <section id="tc-panel-parking" className="tc-panel" role="tabpanel" aria-labelledby="tc-tab-parking"><PageHeading eyebrow={moment.phase === 'after' ? '나가실 때' : '도착하기 전에'} title="주차 안내">{moment.phase === 'after' ? '출차할 때는 걸어 나오는 분들을 먼저 살펴주세요.' : '들어갈 수 있는지, 자리가 있는지 확인해요.'}</PageHeading><div className="tc-section tc-section--topless">{offSeason && <p className="tc-offseason">지금은 행사 기간이 아니에요. 아래는 행사 날 새벽에 보일 화면의 예시예요.</p>}<VenueSwitch venue={venue} onChange={setVenue} label="주차 장소" />
+    {stale ? <StatusLead tone="neutral" label="확인 중 · 예시" title="주차 현황을 확인 중이에요">오래된 정보로 진입을 안내하지 않습니다. 현장 주차요원의 안내를 따라주세요.</StatusLead> : closed ? <><StatusLead tone="neutral" label="송림본당 주차 · 예시" title="아직 차량이 들어갈 수 없어요">학교 출입문 개방 전입니다. 주차 공간이 있어도 진입할 수 없어요.</StatusLead><StatusRow name="학교 차량 출입" value="진입 전" /><StatusRow name="주차 공간" value="개방 후 안내" /></> : allFull ? <><StatusLead tone="red" label={`${venue === 'songrim' ? '송림본당' : '드림센터'} 주차 · 예시`} title="모든 주차 공간이 만차예요">추가 진입은 현장 주차요원의 안내를 따라주세요.</StatusLead><div className="tc-quiet"><strong>대체 주차 장소는 확인 중입니다.</strong><p>교회가 확인한 장소·이용 시간·진입 방법이 정해지면 안내합니다. 임의 주차는 피해주세요.</p></div></> : venue === 'songrim' ? <><StatusLead tone="amber" label="송림본당 주차 · 예시" title="교내 주차장이 혼잡해요">학교 안에서는 대기줄과 보행자 동선을 주의해주세요.</StatusLead><StatusRow name="학교 차량 출입" value="진입 가능" tone="good" /><StatusRow name="주차 공간" value="혼잡" tone="warn" /></> : <><StatusLead label="드림센터 주차 · 예시" title="지하층별 주차 현황을 확인해요">실제 이동할 층은 주차요원의 안내를 따라주세요.</StatusLead><div className="tc-floor-table">{[1, 2, 3, 4, 5].map((floor) => <div className="tc-floor-row" key={floor}><span><b>B{floor}</b><small>지하 {floor}층</small></span><span className={`tc-status-value tc-status-value--${floor <= 2 ? 'stop' : floor === 3 ? 'warn' : 'good'}`}>{floor <= 2 ? '만차' : floor === 3 ? '혼잡' : '주차 가능'}</span></div>)}</div></>}
     {venue === 'songrim' && <div className="tc-quiet"><strong>학교 출입과 예배당 입장은 달라요.</strong><p>학교 문이 열려 차량이 들어가도 본당·체육관은 아직 닫혀 있을 수 있습니다.</p></div>}
-    <button className="tc-line-action" type="button" onClick={goToWorship}>예배 공간 개방 상태 보기 <span aria-hidden="true">→</span></button><p className="tc-panel-note">현황은 시안입니다. 오래된 상태는 안전하게 ‘확인 중’으로 전환합니다.</p><p className="tc-safety">운전 중 화면을 조작하지 마세요. 동승자가 확인하거나 안전하게 정차한 뒤 이용해주세요.</p>
+    <Freshness now={now} stale={stale} team={venue === 'songrim' ? '송림 주차팀' : '드림센터 주차팀'} /><button className="tc-line-action" type="button" onClick={goToWorship}>예배 공간 개방 상태 보기 <span aria-hidden="true">→</span></button><p className="tc-safety">운전 중 화면을 조작하지 마세요. 동승자가 확인하거나 안전하게 정차한 뒤 이용해주세요.</p>
   </div></section>;
 }
 
@@ -234,17 +252,49 @@ function PhotosPanel() {
 
 type ModalState = { type: 'poster' } | { type: 'settings' } | { type: 'route'; venue: Venue } | { type: 'prayer'; text: string; sharing: boolean } | { type: 'stories' } | null;
 
-export function CompanionApp() {
+type Theme = 'auto' | 'light' | 'night';
+
+/** Design-review deep links, e.g. `/?preview=dawn&day=2&theme=night`. Never affects real status. */
+function initialPreview(): { id: PreviewMomentId; day: number; theme: Theme } {
+  const params = typeof window === 'undefined' ? new URLSearchParams() : new URLSearchParams(window.location.search);
+  const requested = params.get('preview');
+  const id = PREVIEW_MOMENTS.some((item) => item.id === requested) ? requested as PreviewMomentId : 'live';
+  const dayValue = Number(params.get('day'));
+  const day = Number.isInteger(dayValue) && dayValue >= 1 && dayValue <= 6 ? dayValue - 1 : 0;
+  const themeParam = params.get('theme');
+  const theme: Theme = themeParam === 'night' || themeParam === 'light' ? themeParam : 'auto';
+  return { id, day, theme };
+}
+
+function useClock(fixed?: Date) {
+  const [real, setReal] = useState(() => fixed ?? new Date());
+  useEffect(() => {
+    if (fixed) return;
+    const timer = window.setInterval(() => setReal(new Date()), 30_000);
+    return () => window.clearInterval(timer);
+  }, [fixed]);
+  return fixed ?? real;
+}
+
+export function CompanionApp({ now: fixedNow }: { now?: Date } = {}) {
   const [tab, setTab] = useState<TabId>('worship');
   const [venue, setVenue] = useState<Venue>('songrim');
   const [stage, setStage] = useState<Stage>(2);
   const [stale, setStale] = useState(false);
   const [parkingFull, setParkingFull] = useState<Record<Venue, boolean>>({ songrim: false, dream: false });
-  const [eventDay, setEventDay] = useState(0);
+  const [previewId, setPreviewId] = useState<PreviewMomentId>(() => initialPreview().id);
+  const [previewDay, setPreviewDay] = useState(() => initialPreview().day);
+  const [theme, setTheme] = useState<Theme>(() => initialPreview().theme);
+  const [largeText, setLargeText] = useState(false);
   const [sharingView, setSharingView] = useState<SnackView>('snacks');
   const [stories, setStories] = useState<Story[]>([]);
   const [hiddenStories, setHiddenStories] = useState<Set<number>>(() => new Set());
   const [modal, setModal] = useState<ModalState>(null);
+  const realNow = useClock(fixedNow);
+  const now = previewId === 'live' ? realNow : previewDate(previewId, previewDay, realNow);
+  const moment = getMoment(now);
+  const eventDay = moment.phase === 'pre' ? 0 : moment.dayIndex;
+  const night = theme === 'auto' ? moment.night : theme === 'night';
   const nextStoryId = useRef(1);
   const tabRefs = useRef<Record<TabId, HTMLButtonElement | null>>({ worship: null, parking: null, prayer: null, sharing: null, photos: null });
   const mainId = useId();
@@ -275,17 +325,46 @@ export function CompanionApp() {
     setStories((current) => [story, ...current]);
     return null;
   };
-  return <div className="tc-companion" lang="ko"><aside className="tc-desktop-note" aria-label="시안 설명"><span>WOORI CHURCH · AUTUMN 2026</span><h1>새벽의 마음을,<br />그대로.</h1><p>예배에 오기 전부터<br />함께 아침을 먹는 시간까지.</p><img src={crownImage} alt="공식 포스터에서 가져온 왕관과 두 손" /><small>실시간 현황·기도 접수·사진 게시가 연결되지 않은 디자인 검토용입니다.</small></aside><div className="tc-app"><header className="tc-app-header"><button className="tc-brand" type="button" onClick={() => selectTab('worship')} aria-label="예배 첫 화면"><strong>우리</strong><span>분당우리교회</span></button><div className="tc-header-actions"><button className="tc-text-button" type="button" onClick={() => setModal({ type: 'poster' })}>행사 포스터 <span aria-hidden="true">↗</span></button><a className="tc-admin-link" href="/admin">관리자 로그인</a></div></header><div className="tc-demo-banner"><span>디자인 시안 · 모든 현황은 예시</span><button type="button" onClick={() => setModal({ type: 'settings' })}>상황 바꿔보기</button></div><main id={mainId} ref={mainRef} tabIndex={-1}>
-    <div hidden={tab !== 'worship'}><WorshipPanel venue={venue} setVenue={setVenue} stage={stage} stale={stale} eventDay={eventDay} goToParking={() => selectTab('parking')} goToSnack={() => { setSharingView('snacks'); selectTab('sharing'); }} showRoute={() => setModal({ type: 'route', venue })} /></div>
-    <div hidden={tab !== 'parking'}><ParkingPanel venue={venue} setVenue={setVenue} stage={stage} stale={stale} allFull={parkingFull[venue]} goToWorship={() => selectTab('worship')} /></div>
+  const goToSnack = () => { setSharingView('snacks'); selectTab('sharing'); };
+  const nowActions = {
+    goToParking: () => selectTab('parking'),
+    goToPrayer: () => selectTab('prayer'),
+    goToBreakfast: () => { setSharingView('breakfast'); selectTab('sharing'); },
+    goToStories: () => { setSharingView('snacks'); selectTab('sharing'); requestAnimationFrame(() => document.getElementById('tc-stories-title')?.scrollIntoView({ block: 'start' })); },
+    goToPhotos: () => selectTab('photos'),
+    previewDawn: () => { setPreviewId('dawn'); if (mainRef.current) mainRef.current.scrollTop = 0; },
+  };
+  const cycleTheme = () => setTheme(night ? 'light' : 'night');
+  return <div className="tc-companion" lang="ko" data-night={night ? 'true' : undefined} data-text={largeText ? 'large' : undefined}><aside className="tc-desktop-note" aria-label="시안 설명"><span>WOORI CHURCH · AUTUMN 2026</span><h1>그 시간에<br />꼭 필요한 것만.</h1><p>행사 전에는 준비를, 전날 밤엔 잠을,<br />새벽엔 갈 곳을, 예배 뒤엔 아침을.</p><img src={crownImage} alt="공식 포스터에서 가져온 왕관과 두 손" /><small>실시간 현황·기도 접수·사진 게시가 연결되지 않은 디자인 검토용입니다. 앱 위쪽 ‘상황 바꿔보기’에서 시간대를 바꿔볼 수 있어요.</small></aside><div className="tc-app"><header className="tc-app-header"><button className="tc-brand" type="button" onClick={() => selectTab('worship')} aria-label="예배 첫 화면"><strong>우리</strong><span>분당우리교회</span></button><div className="tc-header-actions"><button className="tc-icon-button" type="button" aria-pressed={largeText} onClick={() => setLargeText((current) => !current)} aria-label="글자 크게"><span aria-hidden="true">가<small>가</small></span></button><button className="tc-icon-button" type="button" aria-pressed={night} onClick={cycleTheme} aria-label="새벽 모드"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 019.5 4a8 8 0 1010.5 10.5z" /></svg></button><button className="tc-text-button" type="button" onClick={() => setModal({ type: 'poster' })}>포스터</button></div></header><div className="tc-demo-banner"><span>시안 · 현장 상태는 모두 예시</span><span className="tc-demo-links"><button type="button" onClick={() => setModal({ type: 'settings' })}>상황 바꿔보기</button><a href="/admin">관리자</a></span></div><main id={mainId} ref={mainRef} tabIndex={-1}>
+    <div hidden={tab !== 'worship'}><WorshipPanel venue={venue} setVenue={setVenue} stage={stage} stale={stale} moment={moment} now={now} goToParking={() => selectTab('parking')} goToSnack={goToSnack} showRoute={() => setModal({ type: 'route', venue })} nowActions={nowActions} /></div>
+    <div hidden={tab !== 'parking'}><ParkingPanel venue={venue} setVenue={setVenue} stage={stage} stale={stale} allFull={parkingFull[venue]} goToWorship={() => selectTab('worship')} moment={moment} now={now} /></div>
     <div hidden={tab !== 'prayer'}><PrayerPanel onPreview={(text, sharing) => setModal({ type: 'prayer', text, sharing })} /></div>
     <div hidden={tab !== 'sharing'}><SharingPanel eventDay={eventDay} venue={venue} setVenue={setVenue} view={sharingView} setView={(next) => { setSharingView(next); if (mainRef.current) mainRef.current.scrollTop = 0; }} stories={visibleStories} onAddStory={addStory} onDeleteStory={(id) => setStories((current) => current.filter((story) => story.id !== id))} onHideStory={(id) => setHiddenStories((current) => new Set(current).add(id))} onMoreStories={() => setModal({ type: 'stories' })} /></div>
     <div hidden={tab !== 'photos'}><PhotosPanel /></div>
   </main><nav className="tc-bottom-nav" role="tablist" aria-label="주요 메뉴">{tabs.map((item) => <button key={item.id} id={`tc-tab-${item.id}`} ref={(element) => { tabRefs.current[item.id] = element; }} type="button" role="tab" aria-controls={`tc-panel-${item.id}`} aria-selected={tab === item.id} tabIndex={tab === item.id ? 0 : -1} onClick={() => selectTab(item.id)} onKeyDown={onTabKeyDown}><TabIcon tab={item.id} /><b>{item.label}</b></button>)}</nav></div>
     {modal?.type === 'poster' && <Modal title="2026 가을특별새벽부흥회" onClose={() => setModal(null)}><img className="tc-poster" src={posterImage} alt="공식 행사 포스터. 하나님 마음에 합한 사람. 2026년 10월 5일부터 10일, 새벽 4시 40분 예배 시작." /><p className="tc-footnote">04:40은 예배 시작 시각입니다. 학교와 예배 공간 개방 시각은 아직 정해지지 않았습니다.</p></Modal>}
-    {modal?.type === 'settings' && <Modal title="상황 바꿔보기" onClose={() => setModal(null)}><p className="tc-modal-intro">디자인 검토용입니다. 실제 날짜나 현장 상태와 무관하게 미리 볼 행사일과 상황을 선택합니다.</p><label className="tc-modal-label" htmlFor="tc-event-day">미리 볼 예배일</label><select id="tc-event-day" value={eventDay} onChange={(event) => setEventDay(Number(event.target.value))}>{eventDates.map((date, index) => <option value={index} key={date[0]}>{date[0]} · {date[1]}</option>)}</select><label className="tc-modal-label" htmlFor="tc-stage">송림본당 개방 단계</label><select id="tc-stage" value={stage} onChange={(event) => setStage(Number(event.target.value) as Stage)}>{stageNames.map((name, index) => <option value={index} key={name}>{index + 1}. {name}</option>)}</select><label className="tc-checkbox"><input type="checkbox" checked={stale} onChange={(event) => setStale(event.target.checked)} /><span>현황 정보가 오래된 상황</span></label><label className="tc-checkbox"><input type="checkbox" checked={parkingFull[venue]} onChange={(event) => setParkingFull((current) => ({ ...current, [venue]: event.target.checked }))} /><span>선택 장소의 모든 주차 공간 만차</span><small>현재 선택: {venue === 'songrim' ? '송림본당' : '드림센터'}</small></label><div className="tc-quiet"><strong>운영자용 시안 메모</strong><p>송림본당만 · 학교 개방 전 학교 밖 · 최종 정리 역할: 교육자<br />학교 밖 온수 배부 없음 · 보온병은 선택 · 체육관 자체 개방 후 내부 온수 정수기 이용<br />정확한 나눔 지점과 시작·종료 시각은 미정</p></div><button className="tc-primary" type="button" onClick={() => setModal(null)}>선택한 상황 보기</button></Modal>}
-    {modal?.type === 'route' && <Modal title={modal.venue === 'songrim' ? '학교 밖에서 예배 공간까지' : '서현 드림센터 장소 안내'} onClose={() => setModal(null)}>{modal.venue === 'songrim' ? <><p className="tc-modal-intro">운영 흐름을 설명하는 디자인 예시입니다. 실제 줄 합류 지점·보행로·출입구는 현장 확인 후 안내합니다.</p>{stageNames.map((name, index) => <div className="tc-route-step" key={name}><b>{index + 1}</b><span><strong>{name}</strong><small>{index === 0 ? '학교 밖에서 대기하며 차량도 진입할 수 없습니다.' : index === 1 ? '학교 안 보행 동선으로 이동하지만 건물은 아직 닫혀 있습니다.' : index === 2 ? '체육관이 먼저 열리고 본당은 아직 입장 전입니다.' : index === 3 ? '본당 1·2층 입장을 함께 안내합니다.' : '본당 입장은 마감되고 체육관 혼잡을 확인합니다.'}</small></span></div>)}</> : <><p><strong>예배 공간:</strong> 지상 3층·7층·11층</p><p><strong>주차장:</strong> 지하 B1~B5</p><p className="tc-safety">개방 여부와 층별 이용은 현장 안내를 따라주세요. 이 내용은 실시간 상태가 아닙니다.</p></>}</Modal>}
-    {modal?.type === 'prayer' && <Modal title="내 기도 제목 미리보기" onClose={() => setModal(null)}><span className="tc-tiny">전송·저장되지 않은 미리보기</span><div className="tc-preview-text">{modal.text}</div><p>{modal.sharing ? '공개 의향을 선택했지만 이 시안에서는 공개되지 않습니다.' : '비공개 선택입니다. 다른 사람에게 보이지 않습니다.'}</p><p className="tc-safety">서버 접수 기능이 없으며 창을 닫으면 계속 수정할 수 있습니다.</p></Modal>}
+    {modal?.type === 'settings' && <Modal title="상황 바꿔보기" onClose={() => setModal(null)}><p className="tc-modal-intro">디자인 검토용입니다. 실제 날짜나 현장 상태와 무관하게 미리 볼 시간대와 상황을 고릅니다. 첫 화면은 이 시간대에 맞춰 바뀝니다.</p><label className="tc-modal-label" htmlFor="tc-preview-time">미리 볼 시간대</label><select id="tc-preview-time" value={previewId} onChange={(event) => setPreviewId(event.target.value as PreviewMomentId)}>{PREVIEW_MOMENTS.map((item) => <option value={item.id} key={item.id}>{item.label}</option>)}</select><label className="tc-modal-label" htmlFor="tc-event-day">미리 볼 예배일</label><select id="tc-event-day" value={previewId === 'live' ? eventDay : previewDay} onChange={(event) => { setPreviewDay(Number(event.target.value)); if (previewId === 'live' || previewId === 'pre' || previewId === 'post') setPreviewId('dawn'); }}>{eventDates.map((date, index) => <option value={index} key={date[0]}>{date[0]} · {date[1]}</option>)}</select><label className="tc-modal-label" htmlFor="tc-stage">송림본당 개방 단계</label><select id="tc-stage" value={stage} onChange={(event) => setStage(Number(event.target.value) as Stage)}>{stageNames.map((name, index) => <option value={index} key={name}>{index + 1}. {name}</option>)}</select><label className="tc-checkbox"><input type="checkbox" checked={stale} onChange={(event) => setStale(event.target.checked)} /><span>현황 정보가 오래된 상황</span></label><label className="tc-checkbox"><input type="checkbox" checked={parkingFull[venue]} onChange={(event) => setParkingFull((current) => ({ ...current, [venue]: event.target.checked }))} /><span>선택 장소의 모든 주차 공간 만차</span><small>현재 선택: {venue === 'songrim' ? '송림본당' : '드림센터'}</small></label><div className="tc-quiet"><strong>운영자용 시안 메모</strong><p>송림본당만 · 학교 개방 전 학교 밖 · 최종 정리 역할: 교육자<br />학교 밖 온수 배부 없음 · 보온병은 선택 · 체육관 자체 개방 후 내부 온수 정수기 이용<br />정확한 나눔 지점과 시작·종료 시각은 미정<br />‘예배 중’ 화면 전환(04:40~06:00)은 화면용 추정이며 공식 종료 시각이 아님</p></div><button className="tc-primary" type="button" onClick={() => setModal(null)}>선택한 상황 보기</button></Modal>}
+    {modal?.type === 'route' && <Modal title={modal.venue === 'songrim' ? '학교 밖에서 예배 공간까지' : '서현 드림센터 장소 안내'} onClose={() => setModal(null)}>{modal.venue === 'songrim' ? <><p className="tc-modal-intro">운영 흐름을 설명하는 디자인 예시입니다. 실제 줄 합류 지점·보행로·출입구는 현장 확인 후 안내합니다.</p>{stageNames.map((name, index) => <div className="tc-route-step" key={name} aria-current={index === stage ? 'step' : undefined}><b>{index + 1}</b><span><strong>{name}{index === stage && <em> · 지금</em>}</strong><small>{index === 0 ? '학교 밖에서 대기하며 차량도 진입할 수 없습니다.' : index === 1 ? '학교 안 보행 동선으로 이동하지만 건물은 아직 닫혀 있습니다.' : index === 2 ? '체육관이 먼저 열리고 본당은 아직 입장 전입니다.' : index === 3 ? '본당 1·2층 입장을 함께 안내합니다.' : '본당 입장은 마감되고 체육관 혼잡을 확인합니다.'}</small></span></div>)}</> : <><p><strong>예배 공간:</strong> 지상 3층·7층·11층</p><p><strong>주차장:</strong> 지하 B1~B5</p><p className="tc-safety">개방 여부와 층별 이용은 현장 안내를 따라주세요. 이 내용은 실시간 상태가 아닙니다.</p></>}</Modal>}
+    {modal?.type === 'prayer' && <Modal title="내 기도 제목 미리보기" onClose={() => setModal(null)}><span className="tc-tiny">전송·저장되지 않은 미리보기</span><div className="tc-preview-text">{modal.text}</div><p>{modal.sharing ? '공개 의향을 선택했지만 이 시안에서는 공개되지 않습니다.' : '비공개 선택입니다. 다른 사람에게 보이지 않습니다.'}</p><PrayerShare text={modal.text} /><p className="tc-safety">서버 접수 기능이 없으며 창을 닫으면 계속 수정할 수 있습니다.</p></Modal>}
     {modal?.type === 'stories' && <Modal title="내 화면의 이야기 더 보기" onClose={() => setModal(null)}>{visibleStories.map((story) => <article key={story.id} className="tc-story-card"><header><strong>{story.name}</strong><span>내 화면의 미리보기</span></header><p>{story.text}</p></article>)}</Modal>}
   </div>;
+}
+
+function PrayerShare({ text }: { text: string }) {
+  const [status, setStatus] = useState('');
+  const body = `[특새 기도 제목]\n${text}\n\n2026 가을특별새벽부흥회 · 하나님 마음에 합한 사람`;
+  const share = async () => {
+    try {
+      if (typeof navigator.share === 'function') {
+        await navigator.share({ text: body });
+        setStatus('보낼 곳을 직접 고르셨어요. 이 앱은 내용을 따로 저장하지 않아요.');
+        return;
+      }
+      await navigator.clipboard.writeText(body);
+      setStatus('복사했어요. 다락방 단톡방에 붙여 넣어 함께 기도를 부탁해보세요.');
+    } catch {
+      setStatus('보내기를 취소했어요.');
+    }
+  };
+  return <div className="tc-prayer-share"><button className="tc-line-action" type="button" onClick={share}>다락방에 기도 부탁하기 <span aria-hidden="true">↗</span></button><small>내 카카오톡·문자에서 받을 사람을 직접 고릅니다. 서버를 거치지 않아요.</small>{status && <p role="status">{status}</p>}</div>;
 }
