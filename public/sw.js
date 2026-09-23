@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'teuksae-companion-20260923';
+const CACHE_VERSION = 'teuksae-companion-admin-20260923';
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const ASSET_CACHE = `${CACHE_VERSION}-assets`;
 
@@ -50,7 +50,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  if (url.pathname.startsWith('/api/')) {
+  if (url.pathname.startsWith('/api/') || url.pathname === '/admin' || url.pathname.startsWith('/admin/')) {
     return;
   }
 

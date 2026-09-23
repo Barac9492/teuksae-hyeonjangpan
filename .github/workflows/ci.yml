@@ -28,5 +28,8 @@ jobs:
       - name: Test
         run: npm run test
 
+      - name: Test server authentication
+        run: npm run test:server
+
       - name: Build
         run: npm run build

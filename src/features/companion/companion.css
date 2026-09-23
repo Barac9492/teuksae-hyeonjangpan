@@ -5,3 +5,5 @@
 
 /* Root-only bundle reset and reviewed interaction refinements. */
 html,body,#root{margin:0;min-height:100%;width:100%}body{background:#faf8f4}.tc-companion [hidden]{display:none!important}.tc-app>main{min-height:0}.tc-tab-icon{width:21px;height:21px;display:block;fill:none;stroke:currentColor;stroke-width:1.45;stroke-linecap:round;stroke-linejoin:round}.tc-stories>.tc-line-action{margin-top:10px}.tc-stories form{padding-top:10px}.tc-modal-intro{word-break:keep-all}.tc-restaurant>div{flex-wrap:wrap}.tc-companion button{touch-action:manipulation}
+
+.tc-header-actions{display:flex;align-items:center;gap:10px}.tc-admin-link{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 9px;border:1px solid #d4c6b3;border-radius:5px;color:var(--tc-brown);font-size:11px;text-decoration:none;white-space:nowrap}@media(max-width:360px){.tc-brand span{display:none}.tc-header-actions{gap:8px}}
