@@ -1,9 +1,10 @@
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { CompanionApp } from '../features/companion';
 
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
+beforeEach(() => { window.history.replaceState({}, '', '/?preview=1'); });
 
 describe('Companion independent regression review', () => {
   it('retains a prayer draft when checking parking but shows only one accessible panel', async () => {

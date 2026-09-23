@@ -9,6 +9,7 @@ afterEach(() => {
 });
 
 beforeEach(() => {
+  window.history.replaceState({}, '', '/?preview=1');
   if (!globalThis.requestAnimationFrame) globalThis.requestAnimationFrame = (callback) => window.setTimeout(callback, 0);
 });
 
